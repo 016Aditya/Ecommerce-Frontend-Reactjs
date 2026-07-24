@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import PATHS from "@/routes/paths";
 import { useCartQuery } from "@/features/cart/hooks/useCart";
 import { useWishlistQuery } from "@/features/wishlist/hooks/useWishlist";
+import { getGuestWishlist } from "@/services/guestWishlistService";
 import useAuth from "@/features/auth/hooks/useAuth";
 import { useToastStore } from '@/store/toastStore';
 import ThemeToggle from "@/components/common/ThemeToggle";
@@ -101,13 +102,44 @@ const navItemBase = {
   textDecoration: "none",
 };
 
+/**
+ * useGuestWishlistCount
+ *
+ * Returns the live count of items in the guest (LocalStorage) wishlist.
+ * Subscribes to both:
+ *   - "guestWishlistUpdated" (custom event fired by guestWishlistService after
+ *     every add/remove/clear so the badge updates on the same tab immediately)
+ *   - native "storage" event (fires when a different browser tab changes
+ *     localStorage so multi-tab guests stay in sync)
+ */
+function useGuestWishlistCount() {
+  const [count, setCount] = useState(() => getGuestWishlist().length);
+
+  useEffect(() => {
+    const sync = () => setCount(getGuestWishlist().length);
+    window.addEventListener('guestWishlistUpdated', sync);
+    window.addEventListener('storage', sync);
+    return () => {
+      window.removeEventListener('guestWishlistUpdated', sync);
+      window.removeEventListener('storage', sync);
+    };
+  }, []);
+
+  return count;
+}
+
 function Navbar() {
   const { data: cartData }           = useCartQuery();
   const cartItems                    = cartData?.items ?? [];
   const totalItems                   = cartItems.reduce((sum, i) => sum + (i.quantity ?? 0), 0);
+
+  // ── Wishlist count: MongoDB for logged-in users, LocalStorage for guests ──
   const { data: wishlistItems = [] }  = useWishlistQuery();
-  const wishlistCount                = wishlistItems.length;
+  const guestWishlistCount            = useGuestWishlistCount();
   const { user, logout }             = useAuth();
+  // If user is logged in, count from backend; otherwise count from LocalStorage
+  const wishlistCount                = user ? wishlistItems.length : guestWishlistCount;
+
   const showToast                    = useToastStore((state) => state.showToast);
   const navigate                     = useNavigate();
   const [searchParams]               = useSearchParams();
@@ -283,6 +315,17 @@ function Navbar() {
               </svg>
             </Link>
           )}
+          {/* Mobile wishlist icon with badge */}
+          <Link to={PATHS.WISHLIST} aria-label="Wishlist" style={{ position:"relative", display:"flex", alignItems:"center", textDecoration:"none", flexShrink:0 }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+            </svg>
+            {wishlistCount > 0 && (
+              <span style={{ position:"absolute", top:"-6px", right:"-6px", minWidth:"18px", height:"18px", display:"flex", alignItems:"center", justifyContent:"center", borderRadius:"9999px", fontSize:"10px", fontWeight:800, backgroundColor:"var(--accent,#ff9f00)", color:"#0f1111", padding:"0 3px" }}>
+                {wishlistCount > 99 ? "99+" : wishlistCount}
+              </span>
+            )}
+          </Link>
           <Link to={PATHS.CART} aria-label="Cart" style={{ position:"relative", display:"flex", alignItems:"center", textDecoration:"none", flexShrink:0 }}>
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
@@ -331,7 +374,6 @@ function Navbar() {
           padding: "8px 16px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}>
-          {/* Heading */}
           <p style={{
             fontSize: "13px",
             fontWeight: 400,
@@ -340,7 +382,6 @@ function Navbar() {
             lineHeight: 1,
           }}>Shop By</p>
 
-          {/* Grid Container */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(5, 1fr)",
@@ -348,8 +389,6 @@ function Navbar() {
             justifyItems: "center",
             width: "100%",
           }}>
-
-            {/* 4 Primary Categories */}
             {MOBILE_PRIMARY.map((cat) => (
               <Link
                 key={cat.label}
@@ -379,7 +418,6 @@ function Navbar() {
               </Link>
             ))}
 
-            {/* More Button */}
             <button
               onClick={openDrawer}
               aria-label="More categories"
@@ -411,7 +449,6 @@ function Navbar() {
               </span>
               <span style={{ fontSize: "12px", fontWeight: 400, color: "#F3F4F6", whiteSpace: "nowrap" }}>More</span>
             </button>
-
           </div>
         </div>
       </div>
@@ -437,7 +474,7 @@ function Navbar() {
               { label:"Home",           path: PATHS.HOME },
               { label:"My Orders",      path: PATHS.ORDERS },
               { label:"Profile",        path: PATHS.PROFILE },
-              { label:"Wishlist",       path: PATHS.WISHLIST },
+              { label: `Wishlist${wishlistCount > 0 ? ` (${wishlistCount})` : ''}`, path: PATHS.WISHLIST },
               { label:"Cart",           path: PATHS.CART },
               { label:"Today's Deals",  path: PATHS.PRODUCTS },
               { label:"Electronics",    path: `${PATHS.PRODUCTS}?category=Electronics` },

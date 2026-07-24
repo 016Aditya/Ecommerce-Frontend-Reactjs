@@ -8,18 +8,25 @@
  * Storage key : "guestWishlist"
  * Shape       : string[]   e.g. ["64b123", "64b555", "64c888"]
  *
- * This module has zero React / Zustand dependencies; it is safe to call
- * from service files, Zustand actions, or React hooks.
+ * After every write operation a custom DOM event "guestWishlistUpdated" is
+ * dispatched on window so any component (e.g. Navbar) can subscribe and
+ * re-render the badge count without polling.
+ *
+ * This module has zero React / Zustand dependencies.
  */
 
 const STORAGE_KEY = 'guestWishlist';
+
+/** Notify listeners (Navbar badge, etc.) that LocalStorage changed. */
+const notify = () => {
+  window.dispatchEvent(new CustomEvent('guestWishlistUpdated'));
+};
 
 /** Return the current guest wishlist (array of productId strings). */
 export const getGuestWishlist = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    // Defensive: ignore anything that isn't a plain string array
     return Array.isArray(parsed) ? parsed.filter((id) => typeof id === 'string') : [];
   } catch {
     return [];
@@ -32,6 +39,7 @@ export const addToGuestWishlist = (productId) => {
   const items = getGuestWishlist();
   if (!items.includes(productId)) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([...items, productId]));
+    notify();
   }
 };
 
@@ -39,6 +47,7 @@ export const addToGuestWishlist = (productId) => {
 export const removeFromGuestWishlist = (productId) => {
   const updated = getGuestWishlist().filter((id) => id !== productId);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  notify();
 };
 
 /** Toggle a product ID in the guest wishlist. Returns true if now in list. */
@@ -57,4 +66,7 @@ export const toggleGuestWishlist = (productId) => {
 export const isInGuestWishlist = (productId) => getGuestWishlist().includes(productId);
 
 /** Clear the entire guest wishlist (called after successful sync). */
-export const clearGuestWishlist = () => localStorage.removeItem(STORAGE_KEY);
+export const clearGuestWishlist = () => {
+  localStorage.removeItem(STORAGE_KEY);
+  notify();
+};
