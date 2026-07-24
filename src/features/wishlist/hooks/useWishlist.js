@@ -7,6 +7,8 @@ import {
   addToWishlist,
   removeFromWishlist,
 } from '@/services/wishlistService';
+import { getProductById }    from '@/services/productService';
+import { getGuestWishlist }  from '@/services/guestWishlistService';
 
 // Backend WishlistItem: { productId, name, price, imageUrl, brand, category }
 const normalizeWishlistItem = (item) => ({
@@ -17,6 +19,19 @@ const normalizeWishlistItem = (item) => ({
   category:    item.category                     ?? '',
   unitPrice:   item.unitPrice   ?? item.price    ?? 0,   // backend → .price
 });
+
+// Normalize a raw product document (GET /api/products/:id) into the same
+// WishlistItem shape so WishlistPage can render both sources identically.
+const normalizeProductToWishlistItem = (product) => ({
+  productId:   product.id   ?? product._id ?? '',
+  productName: product.name ?? product.productName ?? '',
+  imageUrl:    product.imageUrl ?? '',
+  brand:       product.brand    ?? '',
+  category:    product.category ?? '',
+  unitPrice:   product.price    ?? product.unitPrice ?? 0,
+});
+
+// ── Authenticated Wishlist ────────────────────────────────────────────────
 
 export const useWishlistQuery = () => {
   const user   = useAuthStore((s) => s.user);
@@ -40,8 +55,6 @@ export const useAddToWishlist = () => {
   const queryClient       = useQueryClient();
   const user              = useAuthStore((s) => s.user);
   const userId            = user?.id;
-  // ⭐ Single shared trigger — fires from here so EVERY component
-  //    that calls useAddToWishlist automatically gets the toast.
   const showWishlistToast = useToastStore((s) => s.showWishlistToast);
 
   return useMutation({
@@ -57,7 +70,6 @@ export const useRemoveFromWishlist = () => {
   const queryClient       = useQueryClient();
   const user              = useAuthStore((s) => s.user);
   const userId            = user?.id;
-  // ⭐ Same pattern — remove fires a different message from the same store.
   const showWishlistToast = useToastStore((s) => s.showWishlistToast);
 
   return useMutation({
@@ -66,5 +78,39 @@ export const useRemoveFromWishlist = () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.wishlist.byUser(userId) });
       showWishlistToast('remove');
     },
+  });
+};
+
+// ── Guest Wishlist (unauthenticated) ──────────────────────────────────────
+
+/**
+ * useGuestWishlist
+ *
+ * Fetches live product details for each ID stored in LocalStorage.
+ * Each ID becomes an individual parallel query so TanStack Query can
+ * cache and deduplicate them alongside ProductDetail page queries.
+ *
+ * Returns items in the same shape as useWishlistQuery so WishlistPage
+ * can use one shared rendering path for both guest and authenticated users.
+ */
+export const useGuestWishlist = () => {
+  const productIds = getGuestWishlist();  // string[]
+
+  // Run one query per ID in parallel. useQueries is not available without
+  // import, so we map into individual useQuery calls inside a single
+  // combined hook using Promise.all inside a single useQuery.
+  return useQuery({
+    queryKey: ['wishlist', 'guest', productIds],
+    queryFn: async () => {
+      if (!productIds.length) return [];
+      const results = await Promise.allSettled(
+        productIds.map((id) => getProductById(id))
+      );
+      return results
+        .filter((r) => r.status === 'fulfilled')
+        .map((r) => normalizeProductToWishlistItem(r.value));
+    },
+    enabled: productIds.length > 0,
+    staleTime: 1000 * 60 * 5,
   });
 };

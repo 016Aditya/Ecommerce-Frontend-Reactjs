@@ -5,6 +5,7 @@ import {
   register as registerService,
   logout as logoutService,
 } from '@/services/authService';
+import { syncWishlist } from '@/features/wishlist/utils/wishlistSync';
 
 /** 7 days in milliseconds */
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -39,6 +40,12 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
  *   Only { email, phone } are stored. Passwords are NEVER written to localStorage.
  *   The backend /api/users/verify-identity endpoint validates identity using
  *   email + phoneNumber server-side; no client-side password check is needed.
+ *
+ * Guest wishlist sync:
+ *   After a successful login, syncWishlist(userId) is called to merge any
+ *   items saved in LocalStorage while the user was a guest into MongoDB.
+ *   This is fire-and-forget — auth state is set before sync completes so
+ *   the user is never blocked waiting for the sync.
  */
 export const useAuthStore = create(
   persist(
@@ -98,6 +105,15 @@ export const useAuthStore = create(
             loading: false,
             requiresCaptcha: false,
             captchaToken: '',
+          });
+
+          // ── Guest wishlist sync (fire-and-forget) ──────────────────────────
+          // Merge any LocalStorage guest items into MongoDB in the background.
+          // Auth state is already set above so the user navigates immediately.
+          // TanStack Query's wishlist cache will be invalidated by the sync
+          // utility after the POST completes.
+          syncWishlist(normalisedUser.id).catch(() => {
+            // Sync failure is non-fatal — guest items remain for the next login.
           });
 
           return normalisedUser;

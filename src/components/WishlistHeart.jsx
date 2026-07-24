@@ -7,6 +7,11 @@
  * - Hover   : slightly brighter grey, 1.08x scale (desktop only)
  * - Touch   : tap animation replaces hover, same pop/burst on add
  *
+ * Guest behaviour (unauthenticated):
+ *   Clicking the heart saves/removes the product ID in LocalStorage
+ *   without any redirect to login. A wishlist toast confirms the action.
+ *   On login the guest wishlist is merged into MongoDB automatically.
+ *
  * NOT rendered on ProductDetailPage — pass the component only from
  * ProductCard (compact + standard variants).
  *
@@ -14,26 +19,35 @@
  *   productId  {string}  — product ID for wishlist mutation
  *   productName{string}  — used for aria-label
  */
-import { useState, useEffect, useRef } from 'react';
-import { useNavigate }        from 'react-router-dom';
-import { useAuth }            from '@/features/auth/hooks/useAuth';
+import { useState, useEffect, useRef }   from 'react';
+import { useAuth }                       from '@/features/auth/hooks/useAuth';
 import { useWishlistQuery, useAddToWishlist, useRemoveFromWishlist }
   from '@/features/wishlist/hooks/useWishlist';
-import PATHS from '@/routes/paths';
+import {
+  isInGuestWishlist,
+  toggleGuestWishlist,
+} from '@/services/guestWishlistService';
+import { useToastStore } from '@/store/toastStore';
 import './WishlistHeart.css';
 
 const WishlistHeart = ({ productId, productName = 'product' }) => {
-  const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Server state
+  // ── Authenticated path ───────────────────────────────────────────────
   const { data: wishlistItems = [] } = useWishlistQuery();
   const { mutate: add }    = useAddToWishlist();
   const { mutate: remove } = useRemoveFromWishlist();
 
-  const isInWishlist = wishlistItems.some((item) => item.productId === productId);
+  // ── Guest path ───────────────────────────────────────────────────────
+  // Local state tracks guest wishlist membership so the heart re-renders
+  // immediately without a full page re-mount.
+  const [guestIn, setGuestIn] = useState(() => isInGuestWishlist(productId));
+  const showWishlistToast     = useToastStore((s) => s.showWishlistToast);
 
-  // Local animation state
+  // Derive the effective "is in wishlist" flag for rendering.
+  const isInWishlist = user ? wishlistItems.some((item) => item.productId === productId) : guestIn;
+
+  // ── Animation state ──────────────────────────────────────────────────
   const [animating, setAnimating] = useState(false);
   const [burst,     setBurst]     = useState(false);
   const prevRef = useRef(isInWishlist);
@@ -54,8 +68,15 @@ const WishlistHeart = ({ productId, productName = 'product' }) => {
     e.stopPropagation();   // don't navigate to product detail
     e.preventDefault();
 
-    if (!user) { navigate(PATHS.LOGIN); return; }
+    if (!user) {
+      // ── Guest: save/remove in LocalStorage, show toast, no redirect ──
+      const nowIn = toggleGuestWishlist(productId);
+      setGuestIn(nowIn);
+      showWishlistToast(nowIn ? 'add' : 'remove');
+      return;
+    }
 
+    // ── Authenticated: call backend via TanStack mutations ────────────
     if (isInWishlist) {
       remove({ productId });
     } else {
