@@ -3,11 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProductDetailQuery } from "@/hooks/useQueryProducts";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useAddToCart, useCartQuery, useRemoveFromCart } from "@/features/cart/hooks/useCart";
-import {
-  useWishlistQuery,
-  useAddToWishlist,
-  useRemoveFromWishlist,
-} from "@/features/wishlist/hooks/useWishlist";
+import { useToggleWishlist } from "@/features/wishlist/hooks/useWishlist";
 import ProductImageGallery from "../components/ProductImageGallery";
 import ProductInfo from "../components/ProductInfo";
 import PurchaseCard from "../components/PurchaseCard";
@@ -47,29 +43,12 @@ const ProductDetailPage = () => {
     (item) => String(item.productId) === String(id)
   );
 
-  // ── Wishlist ────────────────────────────────────────────────────────────
-  const { data: wishlistItems = [] }   = useWishlistQuery();
-  const addToWishlistMutation          = useAddToWishlist();
-  const removeFromWishlistMutation     = useRemoveFromWishlist();
-
-  const isWishlisted = wishlistItems.some(
-    (item) => String(item.productId) === String(id)
-  );
-  const [wishBusy, setWishBusy] = useState(false);
-
-  const handleWishlistToggle = async () => {
-    if (!user) { navigate(PATHS.LOGIN); return; }
-    setWishBusy(true);
-    try {
-      if (isWishlisted) {
-        await removeFromWishlistMutation.mutateAsync({ productId: id });
-      } else {
-        await addToWishlistMutation.mutateAsync({ productId: id });
-      }
-    } finally {
-      setWishBusy(false);
-    }
-  };
+  // ── Wishlist ──────────────────────────────────────────────────────────────
+  // useToggleWishlist handles both guest (LocalStorage) and authenticated
+  // (backend) paths. Guests are NOT redirected — they get the same heart
+  // toggle + toast experience as WishlistHeart.jsx.
+  const { isWishlisted, toggle: handleWishlistToggle, busy: wishBusy } =
+    useToggleWishlist(id);
 
   // ── Button loading state ─────────────────────────────────────────────────
   const [addingToCart, setAddingToCart] = useState(false);

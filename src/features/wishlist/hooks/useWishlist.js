@@ -1,14 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useAuthStore }   from '@/store/authStore';
-import { queryKeys }      from '@/lib/queryKeys';
-import { useToastStore }  from '@/store/toastStore';
+import { useState, useEffect }                    from 'react';
+import { useQuery, useMutation, useQueryClient }   from '@tanstack/react-query';
+import { useAuthStore }                            from '@/store/authStore';
+import { queryKeys }                               from '@/lib/queryKeys';
+import { useToastStore }                           from '@/store/toastStore';
 import {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
 } from '@/services/wishlistService';
 import { getProductById }    from '@/services/productService';
-import { getGuestWishlist }  from '@/services/guestWishlistService';
+import {
+  getGuestWishlist,
+  isInGuestWishlist,
+  toggleGuestWishlist,
+} from '@/services/guestWishlistService';
 
 // Backend WishlistItem: { productId, name, price, imageUrl, brand, category }
 const normalizeWishlistItem = (item) => ({
@@ -96,9 +101,6 @@ export const useRemoveFromWishlist = () => {
 export const useGuestWishlist = () => {
   const productIds = getGuestWishlist();  // string[]
 
-  // Run one query per ID in parallel. useQueries is not available without
-  // import, so we map into individual useQuery calls inside a single
-  // combined hook using Promise.all inside a single useQuery.
   return useQuery({
     queryKey: ['wishlist', 'guest', productIds],
     queryFn: async () => {
@@ -113,4 +115,82 @@ export const useGuestWishlist = () => {
     enabled: productIds.length > 0,
     staleTime: 1000 * 60 * 5,
   });
+};
+
+// ── useToggleWishlist — Shared abstraction ────────────────────────────────
+/**
+ * useToggleWishlist
+ *
+ * Single wishlist toggle abstraction consumed by ProductDetailPage,
+ * ProductCard, and WishlistHeart. Eliminates duplicated guest/auth
+ * branching logic across components.
+ *
+ * Guest behaviour (user is null):
+ *   - Toggle product ID in LocalStorage via guestWishlistService.
+ *   - Show wishlist toast.
+ *   - No redirect to /login.
+ *   - isWishlisted is derived from LocalStorage (re-renders on toggle).
+ *
+ * Authenticated behaviour (user is set):
+ *   - Call backend add/remove via TanStack mutations.
+ *   - isWishlisted is derived from TanStack Query cache (live, server-sourced).
+ *   - Query is invalidated automatically by the mutations.
+ *
+ * After refresh:
+ *   - Guest: heart stays filled because LocalStorage is re-read on mount.
+ *   - Auth:  heart stays filled because TanStack Query cache is rehydrated.
+ *
+ * @param {string} productId - The product to toggle
+ * @returns {{ isWishlisted: boolean, toggle: () => Promise<void>, busy: boolean }}
+ */
+export const useToggleWishlist = (productId) => {
+  const user              = useAuthStore((s) => s.user);
+  const showWishlistToast = useToastStore((s) => s.showWishlistToast);
+
+  // ── Authenticated path ───────────────────────────────────────────────
+  const { data: wishlistItems = [] } = useWishlistQuery();
+  const { mutateAsync: add,    isPending: addPending    } = useAddToWishlist();
+  const { mutateAsync: remove, isPending: removePending } = useRemoveFromWishlist();
+  const busy = addPending || removePending;
+
+  // ── Guest path ───────────────────────────────────────────────────────
+  // Local state so the heart re-renders immediately after a LocalStorage write.
+  const [guestIn, setGuestIn] = useState(() => isInGuestWishlist(productId));
+
+  // Re-sync guestIn if productId changes (e.g., navigating between detail pages)
+  useEffect(() => {
+    setGuestIn(isInGuestWishlist(productId));
+  }, [productId]);
+
+  // Also re-sync when the custom DOM event fires (Navbar badge → heart sync)
+  useEffect(() => {
+    const sync = () => setGuestIn(isInGuestWishlist(productId));
+    window.addEventListener('guestWishlistUpdated', sync);
+    return () => window.removeEventListener('guestWishlistUpdated', sync);
+  }, [productId]);
+
+  // ── Derived state ────────────────────────────────────────────────────
+  const isWishlisted = user
+    ? wishlistItems.some((item) => String(item.productId) === String(productId))
+    : guestIn;
+
+  // ── Toggle handler ───────────────────────────────────────────────────
+  const toggle = async () => {
+    if (!user) {
+      // Guest: LocalStorage toggle + toast, no redirect
+      const nowIn = toggleGuestWishlist(productId);
+      setGuestIn(nowIn);
+      showWishlistToast(nowIn ? 'add' : 'remove');
+      return;
+    }
+
+    // Authenticated: backend mutation (toast is fired by mutation onSuccess)
+    if (isWishlisted) {
+      await remove({ productId });
+    } else {
+      await add({ productId });
+    }
+  };
+
+  return { isWishlisted, toggle, busy };
 };

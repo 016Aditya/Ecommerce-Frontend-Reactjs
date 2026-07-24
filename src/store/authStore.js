@@ -42,10 +42,23 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
  *   email + phoneNumber server-side; no client-side password check is needed.
  *
  * Guest wishlist sync:
- *   After a successful login, syncWishlist(userId) is called to merge any
- *   items saved in LocalStorage while the user was a guest into MongoDB.
- *   This is fire-and-forget — auth state is set before sync completes so
- *   the user is never blocked waiting for the sync.
+ *   After a successful login or register, syncWishlist(userId) is awaited
+ *   BEFORE resolving the login action. This ensures the TanStack Query
+ *   wishlist cache is invalidated and prefetched before the component
+ *   navigates, so merged wishlist data is visible without a page refresh.
+ *
+ *   If sync fails (network error, backend error), the error is caught and
+ *   treated as non-fatal — auth state is already set and the user proceeds.
+ *   Guest LocalStorage is preserved by wishlistSync.js on failure, so
+ *   the items will be retried on the next login.
+ *
+ * Login flow order (required for correct wishlist merge):
+ *   1. Authenticate → receive { token, user }
+ *   2. Store JWT + user in Zustand + localStorage
+ *   3. await syncWishlist(userId)   ← merges guest items into MongoDB
+ *                                     + invalidates wishlist cache
+ *                                     + prefetches updated wishlist
+ *   4. Return normalisedUser         ← caller navigates here
  */
 export const useAuthStore = create(
   persist(
@@ -107,14 +120,16 @@ export const useAuthStore = create(
             captchaToken: '',
           });
 
-          // ── Guest wishlist sync (fire-and-forget) ──────────────────────────
-          // Merge any LocalStorage guest items into MongoDB in the background.
-          // Auth state is already set above so the user navigates immediately.
-          // TanStack Query's wishlist cache will be invalidated by the sync
-          // utility after the POST completes.
-          syncWishlist(normalisedUser.id).catch(() => {
-            // Sync failure is non-fatal — guest items remain for the next login.
-          });
+          // ── Guest wishlist sync (awaited) ──────────────────────────────────
+          // Auth state is already set above so the Axios interceptor has the
+          // token for the sync POST. We await here so the query cache is
+          // invalidated + prefetched BEFORE the caller navigates.
+          // On failure we catch silently — guest items remain in LocalStorage.
+          try {
+            await syncWishlist(normalisedUser.id);
+          } catch {
+            // Non-fatal: guest items preserved in LocalStorage for next login.
+          }
 
           return normalisedUser;
         } catch (err) {
@@ -142,6 +157,20 @@ export const useAuthStore = create(
               },
             ],
           }));
+
+          // ── Guest wishlist sync after register ────────────────────────────
+          // If register returns { token, user } (auto-login flow), sync guest
+          // wishlist before the caller navigates. Gracefully skip if register
+          // does not auto-login (data.user is undefined).
+          if (data?.user?.id ?? data?.user?._id) {
+            const userId = data.user.id ?? data.user._id;
+            try {
+              await syncWishlist(userId);
+            } catch {
+              // Non-fatal.
+            }
+          }
+
           return data;
         } catch (err) {
           set({ error: err.message, loading: false });
