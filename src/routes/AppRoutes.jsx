@@ -104,15 +104,24 @@ const AppRoutes = () => (
           <Route path={PATHS.RESET_PASSWORD}  element={<Suspense fallback={<PageLoader />}><ResetPassword /></Suspense>} />
         </Route>
 
-        {/* Open routes */}
+        {/* Open routes — accessible by everyone including guests */}
         <Route path={PATHS.HOME}             element={<HomePage />} />
         <Route path={PATHS.PRODUCTS}         element={<Suspense fallback={<PageLoader />}><ProductsPage /></Suspense>} />
         <Route path={PATHS.PRODUCT_DETAIL}   element={<KeyedProductDetail />} />
         <Route path={PATHS.CUSTOMER_SERVICE} element={<Suspense fallback={<PageLoader />}><CustomerServicePage /></Suspense>} />
 
-        {/* Protected routes */}
+        {/*
+          Wishlist is intentionally NOT inside PrivateRoute.
+          WishlistPage handles its own auth branching internally:
+            - Guest (no user)  → renders LocalStorage wishlist via GuestWishlistPanel
+            - Logged in (user) → renders MongoDB wishlist via AuthWishlistPanel
+          Putting it behind PrivateRoute would redirect guests to /login
+          before WishlistPage ever mounts, breaking the guest wishlist feature.
+        */}
+        <Route path={PATHS.WISHLIST} element={<Suspense fallback={<PageLoader />}><WishlistPage /></Suspense>} />
+
+        {/* Protected routes — require authentication */}
         <Route element={<PrivateRoute />}>
-          <Route path={PATHS.WISHLIST}        element={<Suspense fallback={<PageLoader />}><WishlistPage /></Suspense>} />
           <Route path={PATHS.CART}            element={<Suspense fallback={<PageLoader />}><CartPage /></Suspense>} />
           <Route path={PATHS.CHECKOUT}        element={<Suspense fallback={<PageLoader />}><CheckoutPage /></Suspense>} />
           <Route path={PATHS.ORDERS}          element={<Suspense fallback={<PageLoader />}><OrdersPage /></Suspense>} />
