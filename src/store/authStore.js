@@ -5,7 +5,7 @@ import {
   register as registerService,
   logout as logoutService,
 } from '@/services/authService';
-import { syncWishlist } from '@/features/wishlist/utils/wishlistSync';
+import postLoginSync from '@/features/auth/utils/postLoginSync';
 
 /** 7 days in milliseconds */
 const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -41,24 +41,28 @@ const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
  *   The backend /api/users/verify-identity endpoint validates identity using
  *   email + phoneNumber server-side; no client-side password check is needed.
  *
- * Guest wishlist sync:
- *   After a successful login or register, syncWishlist(userId) is awaited
- *   BEFORE resolving the login action. This ensures the TanStack Query
- *   wishlist cache is invalidated and prefetched before the component
- *   navigates, so merged wishlist data is visible without a page refresh.
+ * Post-login sync:
+ *   After a successful login or register, postLoginSync(userId) is awaited
+ *   BEFORE resolving the login action. This runs wishlist sync and cart sync
+ *   in parallel via Promise.allSettled so both guest stores are merged before
+ *   the component navigates.
  *
- *   If sync fails (network error, backend error), the error is caught and
+ *   If either sync fails (network error, backend error), the failure is
  *   treated as non-fatal — auth state is already set and the user proceeds.
- *   Guest LocalStorage is preserved by wishlistSync.js on failure, so
- *   the items will be retried on the next login.
+ *   Failed guest LocalStorage items are preserved by the respective sync
+ *   utilities and will be retried on the next login.
  *
- * Login flow order (required for correct wishlist merge):
+ *   authStore imports ONLY postLoginSync — it has no knowledge of
+ *   guestCartService, cartSync, guestWishlistService, or wishlistSync.
+ *   Adding a new guest-data migration (saved items, coupons, etc.) only
+ *   requires extending postLoginSync.js, not this file.
+ *
+ * Login flow order:
  *   1. Authenticate → receive { token, user }
  *   2. Store JWT + user in Zustand + localStorage
- *   3. await syncWishlist(userId)   ← merges guest items into MongoDB
- *                                     + invalidates wishlist cache
- *                                     + prefetches updated wishlist
- *   4. Return normalisedUser         ← caller navigates here
+ *   3. await postLoginSync(userId)   ← merges guest wishlist + cart, invalidates
+ *                                       query caches, prefetches updated data
+ *   4. Return normalisedUser          ← caller navigates here
  */
 export const useAuthStore = create(
   persist(
@@ -88,17 +92,12 @@ export const useAuthStore = create(
       isLoggedIn: () => !!get().user,
       isAdmin:    () => get().user?.role === 'ADMIN',
 
-      // ── Login ────────────────────────────────────────────────────────────────
+      // ── Login ─────────────────────────────────────────────────────────────
       login: async (credentials) => {
         set({ loading: true, error: null });
         try {
-          /**
-           * loginService returns the full backend LoginResponse:
-           *   { token: string, user: UserDto.Response }
-           */
           const { token, user } = await loginService(credentials);
 
-          // Normalise: guarantee user.id is always the string used for API calls.
           const normalisedUser = {
             ...user,
             id: user.id ?? user._id,
@@ -106,8 +105,6 @@ export const useAuthStore = create(
 
           const loginAt = Date.now();
 
-          // Write token to localStorage directly so the Axios interceptor can
-          // read it immediately on the next request, before Zustand rehydrates.
           localStorage.setItem('auth_token', token);
           localStorage.setItem('auth_user', JSON.stringify(normalisedUser));
 
@@ -120,15 +117,15 @@ export const useAuthStore = create(
             captchaToken: '',
           });
 
-          // ── Guest wishlist sync (awaited) ──────────────────────────────────
-          // Auth state is already set above so the Axios interceptor has the
-          // token for the sync POST. We await here so the query cache is
+          // ── Guest data sync (wishlist + cart in parallel) ──────────────
+          // Auth state is already committed above so the Axios interceptor
+          // has the token for sync POSTs. We await here so query caches are
           // invalidated + prefetched BEFORE the caller navigates.
-          // On failure we catch silently — guest items remain in LocalStorage.
+          // On failure we catch silently — guest items remain for next login.
           try {
-            await syncWishlist(normalisedUser.id);
+            await postLoginSync(normalisedUser.id);
           } catch {
-            // Non-fatal: guest items preserved in LocalStorage for next login.
+            // Non-fatal: individual sync failures already logged by postLoginSync.
           }
 
           return normalisedUser;
@@ -138,15 +135,12 @@ export const useAuthStore = create(
         }
       },
 
-      // ── Register ─────────────────────────────────────────────────────────────
+      // ── Register ──────────────────────────────────────────────────────────
       register: async (userData) => {
         set({ loading: true, error: null });
         try {
           const data = await registerService(userData);
 
-          // Store only email + phone for the Forgot-Password flow pre-fill.
-          // NEVER store the password — /api/users/verify-identity handles
-          // identity verification server-side using email + phoneNumber.
           set((state) => ({
             loading: false,
             registeredUsers: [
@@ -158,14 +152,26 @@ export const useAuthStore = create(
             ],
           }));
 
-          // ── Guest wishlist sync after register ────────────────────────────
-          // If register returns { token, user } (auto-login flow), sync guest
-          // wishlist before the caller navigates. Gracefully skip if register
-          // does not auto-login (data.user is undefined).
-          if (data?.user?.id ?? data?.user?._id) {
-            const userId = data.user.id ?? data.user._id;
+          // If register returns { token, user } (auto-login flow), store auth
+          // state and run postLoginSync before the caller navigates.
+          if (data?.token && (data?.user?.id ?? data?.user?._id)) {
+            const normalisedUser = {
+              ...data.user,
+              id: data.user.id ?? data.user._id,
+            };
+            const loginAt = Date.now();
+
+            localStorage.setItem('auth_token', data.token);
+            localStorage.setItem('auth_user', JSON.stringify(normalisedUser));
+
+            set({
+              user:    normalisedUser,
+              token:   data.token,
+              loginAt,
+            });
+
             try {
-              await syncWishlist(userId);
+              await postLoginSync(normalisedUser.id);
             } catch {
               // Non-fatal.
             }
@@ -178,22 +184,21 @@ export const useAuthStore = create(
         }
       },
 
-      // ── Logout ───────────────────────────────────────────────────────────────
+      // ── Logout ────────────────────────────────────────────────────────────
       logout: () => {
-        logoutService();                          // clears localStorage auth_token + auth_user
+        logoutService();
         set({ user: null, token: null, loginAt: null });
       },
 
-      // ── Helpers ──────────────────────────────────────────────────────────────
+      // ── Helpers ───────────────────────────────────────────────────────────
       updateUser: (partial) =>
         set((state) => ({ user: { ...state.user, ...partial } })),
 
       updateRegisteredUser: (email, partial) =>
         set((state) => ({
-          // Filter out any stale entries with a password field (migration safety)
           registeredUsers: state.registeredUsers.map((u) => {
             if (u.email !== email) return u;
-            const { password: _removed, ...safe } = u; // strip password if present
+            const { password: _removed, ...safe } = u;
             return { ...safe, ...partial };
           }),
         })),
@@ -225,10 +230,7 @@ export const useAuthStore = create(
 
       tickLoginSecurity: () =>
         set((state) => {
-          if (state.remainingSeconds <= 0) {
-            return state;
-          }
-
+          if (state.remainingSeconds <= 0) return state;
           const nextSeconds = Math.max(state.remainingSeconds - 1, 0);
           return {
             remainingSeconds: nextSeconds,
@@ -265,11 +267,8 @@ export const useAuthStore = create(
       }),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          // ── Session TTL check ──────────────────────────────────────────────
-          // If more than 7 days have passed since login, wipe the session so
-          // the user is redirected to /login on the next PrivateRoute access.
           if (state.loginAt && Date.now() - state.loginAt > SESSION_TTL_MS) {
-            logoutService();   // clears localStorage auth_token + auth_user
+            logoutService();
             state.user    = null;
             state.token   = null;
             state.loginAt = null;
@@ -277,20 +276,16 @@ export const useAuthStore = create(
             return;
           }
 
-          // Normalise user.id from stale localStorage (pre-JWT sessions)
           if (state.user && !state.user.id && state.user._id) {
             state.user = { ...state.user, id: state.user._id };
           }
 
-          // Migration: strip any password field from registeredUsers
-          // that may have been persisted by a previous version of this store.
           if (Array.isArray(state.registeredUsers)) {
             state.registeredUsers = state.registeredUsers.map(
               ({ password: _removed, ...safe }) => safe
             );
           }
 
-          // Keep localStorage auth_token in sync with the rehydrated Zustand token
           if (state.token) {
             localStorage.setItem('auth_token', state.token);
           } else {
