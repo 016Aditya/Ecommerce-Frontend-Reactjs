@@ -38,3 +38,32 @@ export const removeItemFromCart = async (userId, productId) => {
 export const clearCart = async (userId) => {
   await api.delete(`${API_ENDPOINTS.CART}/${userId}/clear`);
 };
+
+/**
+ * POST /api/cart/:userId/sync
+ *
+ * Merges the guest (LocalStorage) cart into the authenticated backend cart.
+ *
+ * Required backend endpoint (Spring Boot):
+ *   POST /api/cart/{userId}/sync
+ *   Request body : { "items": [ { "productId": string, "quantity": number } ] }
+ *   Merge rule   : If a product already exists in the backend cart, ADD the
+ *                  guest quantity to the existing quantity, then cap at the
+ *                  lesser of maxOrderQuantity and available stock.
+ *                  If it does not exist, insert it as a new cart item.
+ *   Response     : 200 CartResponse (same shape as getCart) after the merge
+ *                  is fully persisted — never 200 before persistence.
+ *
+ * This function throws on any non-2xx response so cartSync.js can preserve
+ * the guest LocalStorage payload for a retry on the next login.
+ *
+ * @param {string}  userId
+ * @param {Array<{ productId: string, quantity: number }>} items
+ * @returns {Promise<object>} CartResponse from the backend
+ */
+export const syncGuestCart = async (userId, items) => {
+  const { data } = await api.post(`${API_ENDPOINTS.CART}/${userId}/sync`, {
+    items,
+  });
+  return data;
+};
