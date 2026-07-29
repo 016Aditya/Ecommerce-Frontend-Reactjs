@@ -7,13 +7,13 @@ import {
   getWishlist,
   addToWishlist,
   removeFromWishlist,
-} from '@/services/wishlistService';
+} from '@/features/wishlist/services/wishlistService';
 import { getProductById }    from '@/services/productService';
 import {
   getGuestWishlist,
   isInGuestWishlist,
   toggleGuestWishlist,
-} from '@/services/guestWishlistService';
+} from '@/features/wishlist/services/guestWishlistService';
 
 // Backend WishlistItem: { productId, name, price, imageUrl, brand, category }
 const normalizeWishlistItem = (item) => ({

@@ -22,7 +22,7 @@ import {
   updateCartItem,
   removeItemFromCart,
   clearCart,
-} from '@/services/cartService';
+} from '@/features/cart/services/cartService';
 import {
   getGuestCart,
   addGuestCartItem,
@@ -30,7 +30,7 @@ import {
   removeGuestCartItem,
   clearGuestCart,
   isInGuestCart,
-} from '@/services/guestCartService';
+} from '@/features/cart/services/guestCartService';
 import { getProductById } from '@/services/productService';
 import { useAuthStore } from '@/store/authStore';
 import { useCartStore } from '@/store/cartStore';

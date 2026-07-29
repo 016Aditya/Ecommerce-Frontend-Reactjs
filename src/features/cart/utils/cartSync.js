@@ -24,8 +24,8 @@
  * This module has no React UI and no toast logic.
  */
 
-import { getGuestCart, clearGuestCart }    from '@/services/guestCartService';
-import { syncGuestCart, getCart }          from '@/services/cartService';
+import { getGuestCart, clearGuestCart }    from '@/features/cart/services/guestCartService';
+import { syncGuestCart, getCart }          from '@/features/cart/services/cartService';
 import { queryClient }                    from '@/lib/queryClient';
 import { queryKeys }                      from '@/lib/queryKeys';
 

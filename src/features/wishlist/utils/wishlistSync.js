@@ -19,8 +19,8 @@
  * in LocalStorage for the next login attempt.
  */
 
-import { getGuestWishlist, clearGuestWishlist } from '@/services/guestWishlistService';
-import { syncGuestWishlist, getWishlist }        from '@/services/wishlistService';
+import { getGuestWishlist, clearGuestWishlist } from '@/features/wishlist/services/guestWishlistService';
+import { syncGuestWishlist, getWishlist }        from '@/features/wishlist/services/wishlistService';
 import { queryClient }                           from '@/lib/queryClient';
 import { queryKeys }                             from '@/lib/queryKeys';
 
