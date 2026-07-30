@@ -9,7 +9,7 @@ import OrderSummary from "@/features/cart/components/OrderSummary";
 import CartItemSkeleton, { OrderSummarySkeleton } from "@/components/skeleton/CartItemSkeleton";
 
 const CartPage = () => {
-  const { items, cartTotal, loading, error, removeItem, updateItem, emptyCart } = useCart();
+  const { items, loading, error, emptyCart } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -18,6 +18,10 @@ const CartPage = () => {
     description: 'Review your shopping cart and proceed to checkout.',
     robots: 'noindex,nofollow',
   });
+
+  // Compute cartTotal from items for both guest and auth.
+  // (cartData?.cartTotal is unreliable for guests since cartData is null.)
+  const cartTotal = items.reduce((sum, item) => sum + (item.unitPrice ?? 0) * (item.quantity ?? 1), 0);
 
   // Only Checkout requires authentication.
   // Guests see the full cart page and can manage items freely.
@@ -124,7 +128,7 @@ const CartPage = () => {
           </p>
         </div>
 
-        {/* Guest banner */}
+        {/* Guest info banner */}
         {isGuest && (
           <div
             className="mb-6 flex items-center gap-3 rounded-lg px-4 py-3"
@@ -166,13 +170,7 @@ const CartPage = () => {
               <div style={{ borderColor: "var(--border-color)" }} className="divide-y">
                 {items.map((item) => (
                   <div key={item.productId} className="px-6">
-                    <CartItem
-                      item={item}
-                      onUpdateQuantity={updateItem}
-                      onRemove={removeItem}
-                      onSaveForLater={() => {}}
-                      isGuest={isGuest}
-                    />
+                    <CartItem item={item} isGuest={isGuest} />
                   </div>
                 ))}
               </div>

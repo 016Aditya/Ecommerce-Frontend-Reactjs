@@ -1,7 +1,7 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import PATHS from "@/routes/paths";
-import { useCartQuery } from "@/features/cart/hooks/useCart";
+import { useCartQuery, useGuestCartCount } from "@/features/cart/hooks/useCart";
 import { useWishlistQuery } from "@/features/wishlist/hooks/useWishlist";
 import { getGuestWishlist } from "@/services/guestWishlistService";
 import useAuth from "@/features/auth/hooks/useAuth";
@@ -32,7 +32,6 @@ const NAV_LINKS = [
   { label: "Customer Service", path: PATHS.CUSTOMER_SERVICE, dropdown: null },
 ];
 
-// ── Mobile "Shop By" — 4 visible categories + More button ────────────────────
 const MOBILE_PRIMARY = [
   {
     label: "Deals",
@@ -76,7 +75,6 @@ const MOBILE_PRIMARY = [
   },
 ];
 
-// ── "More" drawer — includes Home & Kitchen + all other categories ───────────
 const MORE_CATS = [
   { label: "Today's Deal",   path: PATHS.PRODUCTS },
   { label: "Electronics",    path: `${PATHS.PRODUCTS}?category=Electronics` },
@@ -89,7 +87,6 @@ const MORE_CATS = [
   { label: "Decor",          path: `${PATHS.PRODUCTS}?category=Decor` },
 ];
 
-// ── Shared desktop nav-item style ─────────────────────────────────────────────
 const navItemBase = {
   display:        "flex",
   flexShrink:     0,
@@ -102,19 +99,8 @@ const navItemBase = {
   textDecoration: "none",
 };
 
-/**
- * useGuestWishlistCount
- *
- * Returns the live count of items in the guest (LocalStorage) wishlist.
- * Subscribes to both:
- *   - "guestWishlistUpdated" (custom event fired by guestWishlistService after
- *     every add/remove/clear so the badge updates on the same tab immediately)
- *   - native "storage" event (fires when a different browser tab changes
- *     localStorage so multi-tab guests stay in sync)
- */
 function useGuestWishlistCount() {
   const [count, setCount] = useState(() => getGuestWishlist().length);
-
   useEffect(() => {
     const sync = () => setCount(getGuestWishlist().length);
     window.addEventListener('guestWishlistUpdated', sync);
@@ -124,29 +110,32 @@ function useGuestWishlistCount() {
       window.removeEventListener('storage', sync);
     };
   }, []);
-
   return count;
 }
 
 function Navbar() {
   const { data: cartData }           = useCartQuery();
-  const cartItems                    = cartData?.items ?? [];
-  const totalItems                   = cartItems.reduce((sum, i) => sum + (i.quantity ?? 0), 0);
+  const authCartItems                = cartData?.items ?? [];
+  const authCartTotal                = authCartItems.reduce((sum, i) => sum + (i.quantity ?? 0), 0);
 
-  // ── Wishlist count: MongoDB for logged-in users, LocalStorage for guests ──
+  // Guest cart count — live, subscribed to guestCartUpdated + storage events
+  const guestCartCount               = useGuestCartCount();
+
   const { data: wishlistItems = [] }  = useWishlistQuery();
   const guestWishlistCount            = useGuestWishlistCount();
   const { user, logout }             = useAuth();
-  // If user is logged in, count from backend; otherwise count from LocalStorage
-  const wishlistCount                = user ? wishlistItems.length : guestWishlistCount;
 
-  const showToast                    = useToastStore((state) => state.showToast);
-  const navigate                     = useNavigate();
-  const [searchParams]               = useSearchParams();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen]   = useState(false);
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  // Unified badge counts: auth → backend, guest → localStorage
+  const totalItems    = user ? authCartTotal   : guestCartCount;
+  const wishlistCount = user ? wishlistItems.length : guestWishlistCount;
+
+  const showToast  = useToastStore((state) => state.showToast);
+  const navigate   = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [mobileMenuOpen,    setMobileMenuOpen]    = useState(false);
+  const [drawerOpen,        setDrawerOpen]        = useState(false);
+  const [drawerVisible,     setDrawerVisible]     = useState(false);
+  const [mobileSearchOpen,  setMobileSearchOpen]  = useState(false);
   const query = searchParams.get("search") || "";
 
   useEffect(() => {
@@ -368,83 +357,30 @@ function Navbar() {
           </button>
         </div>
 
-        {/* ══ Row 3: Shop By — 5 items (Icon Top, Label Bottom) ══ */}
+        {/* Row 3: Shop By */}
         <div style={{
           backgroundColor: "var(--navbar-bg)",
           padding: "8px 16px 12px",
           borderBottom: "1px solid rgba(255,255,255,0.06)",
         }}>
-          <p style={{
-            fontSize: "13px",
-            fontWeight: 400,
-            color: "#9ca3af",
-            marginBottom: "10px",
-            lineHeight: 1,
-          }}>Shop By</p>
-
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(5, 1fr)",
-            alignItems: "center",
-            justifyItems: "center",
-            width: "100%",
-          }}>
+          <p style={{ fontSize: "13px", fontWeight: 400, color: "#9ca3af", marginBottom: "10px", lineHeight: 1 }}>Shop By</p>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", alignItems: "center", justifyItems: "center", width: "100%" }}>
             {MOBILE_PRIMARY.map((cat) => (
-              <Link
-                key={cat.label}
-                to={cat.path}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "6px",
-                  textDecoration: "none",
-                  WebkitTapHighlightColor: "transparent",
-                }}
+              <Link key={cat.label} to={cat.path}
+                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", textDecoration: "none", WebkitTapHighlightColor: "transparent" }}
               >
-                <span style={{ color: "#e2e8f0", display: "flex" }}>
-                  {cat.icon}
-                </span>
-                <span style={{
-                  fontSize: "12px",
-                  fontWeight: 400,
-                  color: "#F3F4F6",
-                  lineHeight: 1.2,
-                  whiteSpace: "nowrap",
-                }}>
-                  {cat.label}
-                </span>
+                <span style={{ color: "#e2e8f0", display: "flex" }}>{cat.icon}</span>
+                <span style={{ fontSize: "12px", fontWeight: 400, color: "#F3F4F6", lineHeight: 1.2, whiteSpace: "nowrap" }}>{cat.label}</span>
               </Link>
             ))}
-
-            <button
-              onClick={openDrawer}
-              aria-label="More categories"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "6px",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                padding: 0,
-                WebkitTapHighlightColor: "transparent",
-              }}
+            <button onClick={openDrawer} aria-label="More categories"
+              style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", background: "none", border: "none", cursor: "pointer", padding: 0, WebkitTapHighlightColor: "transparent" }}
             >
               <span style={{ color: "#e2e8f0", display: "flex" }}>
                 <svg width="26" height="26" viewBox="0 0 26 26" fill="currentColor">
-                  <circle cx="5"  cy="5"  r="2.2"/>
-                  <circle cx="13" cy="5"  r="2.2"/>
-                  <circle cx="21" cy="5"  r="2.2"/>
-                  <circle cx="5"  cy="13" r="2.2"/>
-                  <circle cx="13" cy="13" r="2.2"/>
-                  <circle cx="21" cy="13" r="2.2"/>
-                  <circle cx="5"  cy="21" r="2.2"/>
-                  <circle cx="13" cy="21" r="2.2"/>
-                  <circle cx="21" cy="21" r="2.2"/>
+                  <circle cx="5"  cy="5"  r="2.2"/><circle cx="13" cy="5"  r="2.2"/><circle cx="21" cy="5"  r="2.2"/>
+                  <circle cx="5"  cy="13" r="2.2"/><circle cx="13" cy="13" r="2.2"/><circle cx="21" cy="13" r="2.2"/>
+                  <circle cx="5"  cy="21" r="2.2"/><circle cx="13" cy="21" r="2.2"/><circle cx="21" cy="21" r="2.2"/>
                 </svg>
               </span>
               <span style={{ fontSize: "12px", fontWeight: 400, color: "#F3F4F6", whiteSpace: "nowrap" }}>More</span>
@@ -475,7 +411,7 @@ function Navbar() {
               { label:"My Orders",      path: PATHS.ORDERS },
               { label:"Profile",        path: PATHS.PROFILE },
               { label: `Wishlist${wishlistCount > 0 ? ` (${wishlistCount})` : ''}`, path: PATHS.WISHLIST },
-              { label:"Cart",           path: PATHS.CART },
+              { label: `Cart${totalItems > 0 ? ` (${totalItems})` : ''}`, path: PATHS.CART },
               { label:"Today's Deals",  path: PATHS.PRODUCTS },
               { label:"Electronics",    path: `${PATHS.PRODUCTS}?category=Electronics` },
               { label:"Fashion",        path: `${PATHS.PRODUCTS}?category=Clothing` },

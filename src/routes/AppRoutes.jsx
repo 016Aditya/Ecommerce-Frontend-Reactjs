@@ -26,49 +26,30 @@ const OrderDetailPage  = lazy(() => import("@/features/orders/pages/OrderDetailP
 const OrderSuccessPage = lazy(() => import("@/features/orders/pages/OrderSuccessPage"));
 const ProfilePage      = lazy(() => import("@/features/profile/pages/ProfilePage"));
 
-// Canonical import — address feature module (replaces profile/pages/SavedAddressesPage)
 const SavedAddresses = lazy(() => import("@/features/address/pages/SavedAddresses"));
 
 const NotFound = lazy(() => import("@/errors/NotFound"));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
-
   useEffect(() => {
     const frame = window.requestAnimationFrame(() => {
       const scrollRoot = document.scrollingElement || document.documentElement;
-
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       scrollRoot.scrollTop = 0;
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
     });
-
     return () => window.cancelAnimationFrame(frame);
   }, [pathname]);
-
   return null;
 };
 
 /**
  * KeyedProductDetail
  *
- * Reads :id once at this stable render level and keys the ENTIRE
- * Suspense + ProductDetailPage subtree to the product id.
- *
- * Why key on the Suspense wrapper (not on ProductDetailPage inside it):
- *   - React Router v6 + React.StrictMode double-invokes component
- *     functions. A wrapper component that only calls useParams() and
- *     returns <Child key={id} /> can double-render with stale params
- *     during a route transition, causing TanStack Query to briefly
- *     subscribe to the wrong query key and return cached stale data.
- *   - Keying the Suspense boundary means React tears down and rebuilds
- *     the ENTIRE subtree — including the Suspense boundary itself —
- *     on every id change. There is no in-between render where a child
- *     can read a mismatched param.
- *   - The lazy() chunk is already resolved after first load, so keying
- *     Suspense does NOT re-download the JS bundle. It only resets the
- *     component instance tree.
+ * Keys the entire Suspense + ProductDetailPage subtree on :id so React
+ * tears down and rebuilds on every id change, preventing stale param reads.
  */
 const KeyedProductDetail = () => {
   const { id } = useParams();
@@ -96,7 +77,7 @@ const AppRoutes = () => (
       {/* All other routes share PageWrapper (Navbar + Footer via Outlet) */}
       <Route element={<PageWrapper />}>
 
-        {/* Public-only routes */}
+        {/* Public-only routes (redirect to home if already logged in) */}
         <Route element={<PublicRoute />}>
           <Route path={PATHS.LOGIN}           element={<Suspense fallback={<PageLoader />}><Login /></Suspense>} />
           <Route path={PATHS.REGISTER}        element={<Suspense fallback={<PageLoader />}><Register /></Suspense>} />
@@ -111,18 +92,24 @@ const AppRoutes = () => (
         <Route path={PATHS.CUSTOMER_SERVICE} element={<Suspense fallback={<PageLoader />}><CustomerServicePage /></Suspense>} />
 
         {/*
-          Wishlist is intentionally NOT inside PrivateRoute.
+          Wishlist is NOT inside PrivateRoute.
           WishlistPage handles its own auth branching internally:
-            - Guest (no user)  → renders LocalStorage wishlist via GuestWishlistPanel
-            - Logged in (user) → renders MongoDB wishlist via AuthWishlistPanel
-          Putting it behind PrivateRoute would redirect guests to /login
-          before WishlistPage ever mounts, breaking the guest wishlist feature.
+            - Guest  → LocalStorage wishlist via GuestWishlistPanel
+            - Auth   → MongoDB wishlist via AuthWishlistPanel
         */}
         <Route path={PATHS.WISHLIST} element={<Suspense fallback={<PageLoader />}><WishlistPage /></Suspense>} />
 
+        {/*
+          Cart is NOT inside PrivateRoute.
+          CartPage handles its own auth branching internally:
+            - Guest  → localStorage cart via guestCartService (full page)
+            - Auth   → backend cart via TanStack Query
+          Only the "Proceed to Checkout" button inside CartPage gates on auth.
+        */}
+        <Route path={PATHS.CART} element={<Suspense fallback={<PageLoader />}><CartPage /></Suspense>} />
+
         {/* Protected routes — require authentication */}
         <Route element={<PrivateRoute />}>
-          <Route path={PATHS.CART}            element={<Suspense fallback={<PageLoader />}><CartPage /></Suspense>} />
           <Route path={PATHS.CHECKOUT}        element={<Suspense fallback={<PageLoader />}><CheckoutPage /></Suspense>} />
           <Route path={PATHS.ORDERS}          element={<Suspense fallback={<PageLoader />}><OrdersPage /></Suspense>} />
           <Route path={PATHS.ORDER_DETAIL}    element={<Suspense fallback={<PageLoader />}><OrderDetailPage /></Suspense>} />

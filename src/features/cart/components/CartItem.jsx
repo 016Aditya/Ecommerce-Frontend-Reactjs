@@ -1,24 +1,30 @@
 import { useUpdateCartItem, useRemoveFromCart } from "../hooks/useCart";
-import { useWishlistStore }                     from "@/store/wishlistStore";
-import { useToastStore }                        from '@/store/toastStore';
-import { useAddToWishlist }                     from "@/features/wishlist/hooks/useWishlist";
-import { formatCurrency }                       from "@/utils/currency";
-import { isAtQuantityLimit, validateQuantity }  from '../utils/cartValidation';
+import { useToastStore }    from '@/store/toastStore';
+import { useToggleWishlist } from "@/features/wishlist/hooks/useWishlist";
+import { formatCurrency }   from "@/utils/currency";
+import { isAtQuantityLimit, validateQuantity } from '../utils/cartValidation';
 
 /**
- * CartItem — uses granular TanStack Query hooks.
+ * CartItem — guest-aware, fully unified.
  *
- * isGuest prop: when true, 'Save for Later' is hidden because it
- * requires an authenticated backend wishlist endpoint.
- * Remove and qty controls work for guests via useCart's guest path.
+ * "Save for Later" behaviour by auth state:
+ *   - Guest  → calls useToggleWishlist (guestWishlistService / localStorage);
+ *             item is wishlisted without requiring any login. The item stays
+ *             in the cart so the guest doesn't lose it unexpectedly.
+ *   - Auth   → same useToggleWishlist (backend path);
+ *             item is wishlisted then removed from cart (existing UX).
+ *
+ * Remove and qty controls work for guests via useCart's guest path
+ * (guestCartService / localStorage).
  */
 const CartItem = ({ item, isGuest = false }) => {
   const updateMutation = useUpdateCartItem();
   const removeMutation = useRemoveFromCart();
+  const showToast      = useToastStore((s) => s.showToast);
 
-  const openWishlist          = useWishlistStore((s) => s.openWishlist);
-  const showToast             = useToastStore((s) => s.showToast);
-  const addToWishlistMutation = useAddToWishlist();
+  // useToggleWishlist handles both guest (localStorage) and auth (backend) paths.
+  const { isWishlisted, toggle: toggleWishlist, busy: wishBusy } =
+    useToggleWishlist(item.productId);
 
   const {
     productId,
@@ -35,8 +41,7 @@ const CartItem = ({ item, isGuest = false }) => {
 
   const isUpdating = updateMutation.isPending;
   const isRemoving = removeMutation.isPending;
-  const isSaving   = addToWishlistMutation.isPending;
-  const isBusy     = isUpdating || isRemoving || (isGuest ? false : isSaving);
+  const isBusy     = isUpdating || isRemoving || wishBusy;
 
   const handleUpdateQty = (newQty) => {
     if (newQty < 1 || isBusy) return;
@@ -62,20 +67,32 @@ const CartItem = ({ item, isGuest = false }) => {
     removeMutation.mutate({ productId });
   };
 
-  const handleSaveForLater = () => {
+  /**
+   * Save for Later:
+   *   - Guests  → toggle guest wishlist (localStorage). Item stays in cart.
+   *   - Auth    → toggle backend wishlist then remove from cart.
+   */
+  const handleSaveForLater = async () => {
     if (isBusy) return;
-    addToWishlistMutation.mutate(
-      { productId },
-      {
-        onSuccess: () => {
-          removeMutation.mutate({ productId });
-          openWishlist();
-        },
-      }
-    );
+    if (isGuest) {
+      // Guest: wishlist toggle only, no cart removal (item kept for safety)
+      await toggleWishlist();
+      return;
+    }
+    // Auth: wishlist + remove from cart
+    await toggleWishlist();
+    if (!isWishlisted) {
+      // We just wishlisted it — remove from cart
+      removeMutation.mutate({ productId });
+    }
   };
 
   const atLimit = isAtQuantityLimit(quantity, item.stock, item.maxOrderQuantity);
+
+  const saveLabel = () => {
+    if (wishBusy) return isWishlisted ? 'Removing\u2026' : 'Saving\u2026';
+    return isWishlisted ? '\u2665 Wishlisted' : 'Save for Later';
+  };
 
   return (
     <div className="flex gap-4 border-b border-gray-200 py-4 sm:gap-6 sm:py-6">
@@ -159,16 +176,15 @@ const CartItem = ({ item, isGuest = false }) => {
 
         {/* Action Buttons */}
         <div className="mt-3 flex gap-3">
-          {/* Save for Later is auth-only — hidden for guests */}
-          {!isGuest && (
-            <button
-              onClick={handleSaveForLater}
-              disabled={isBusy}
-              className="text-sm text-blue-600 hover:text-blue-700 font-medium transition disabled:opacity-50"
-            >
-              {isSaving ? 'Saving\u2026' : 'Save for Later'}
-            </button>
-          )}
+          {/* Save for Later: guest → guestWishlist, auth → backend wishlist */}
+          <button
+            onClick={handleSaveForLater}
+            disabled={isBusy}
+            className="text-sm font-medium transition disabled:opacity-50"
+            style={{ color: isWishlisted ? '#e11d48' : '#2563eb' }}
+          >
+            {saveLabel()}
+          </button>
           <button
             onClick={handleRemove}
             disabled={isBusy}
