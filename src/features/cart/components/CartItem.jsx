@@ -8,19 +8,16 @@ import { isAtQuantityLimit, validateQuantity }  from '../utils/cartValidation';
 /**
  * CartItem — uses granular TanStack Query hooks.
  *
- * Each CartItem has its own independent isPending state so the +/−
- * buttons on one row disable only that row while its mutation is
- * in-flight, not the entire cart.
- *
- * UX enhancement: clicking + beyond stock or purchase limit now fires
- * a contextual toast instead of silently doing nothing.
+ * isGuest prop: when true, 'Save for Later' is hidden because it
+ * requires an authenticated backend wishlist endpoint.
+ * Remove and qty controls work for guests via useCart's guest path.
  */
-const CartItem = ({ item }) => {
+const CartItem = ({ item, isGuest = false }) => {
   const updateMutation = useUpdateCartItem();
   const removeMutation = useRemoveFromCart();
 
-  const openWishlist         = useWishlistStore((s) => s.openWishlist);
-  const showToast            = useToastStore((s) => s.showToast);
+  const openWishlist          = useWishlistStore((s) => s.openWishlist);
+  const showToast             = useToastStore((s) => s.showToast);
   const addToWishlistMutation = useAddToWishlist();
 
   const {
@@ -39,35 +36,24 @@ const CartItem = ({ item }) => {
   const isUpdating = updateMutation.isPending;
   const isRemoving = removeMutation.isPending;
   const isSaving   = addToWishlistMutation.isPending;
-  const isBusy     = isUpdating || isRemoving || isSaving;
+  const isBusy     = isUpdating || isRemoving || (isGuest ? false : isSaving);
 
   const handleUpdateQty = (newQty) => {
     if (newQty < 1 || isBusy) return;
     updateMutation.mutate({ productId, quantity: newQty });
   };
 
-  /**
-   * Increment handler — validates before mutating.
-   * Uses the shared validateQuantity() utility; never duplicates logic here.
-   */
   const handleIncrement = () => {
     if (isBusy) return;
-
     const validation = validateQuantity({
       quantity,
       stock:            item.stock,
       maxOrderQuantity: item.maxOrderQuantity,
     });
-
     if (!validation.valid) {
-      showToast({
-        type: 'warning',
-        title: validation.title,
-        message: validation.message,
-      });
+      showToast({ type: 'warning', title: validation.title, message: validation.message });
       return;
     }
-
     handleUpdateQty(quantity + 1);
   };
 
@@ -123,16 +109,12 @@ const CartItem = ({ item }) => {
               </span>
             )}
             {category && (
-              <span className="inline-block text-xs text-gray-500 px-2 py-1">
-                {category}
-              </span>
+              <span className="inline-block text-xs text-gray-500 px-2 py-1">{category}</span>
             )}
           </div>
-
           <h3 className="text-base font-semibold text-gray-900 leading-tight mb-2 line-clamp-2">
             {productName || 'Loading product...'}
           </h3>
-
           <p className="text-lg font-bold text-gray-900 mb-3">
             {formatCurrency(price)}
             <span className="text-xs font-normal text-gray-600 ml-2">per item</span>
@@ -148,13 +130,11 @@ const CartItem = ({ item }) => {
               className="px-3 py-2 text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition"
               aria-label="Decrease quantity"
             >
-              {isUpdating ? '…' : '−'}
+              {isUpdating ? '\u2026' : '\u2212'}
             </button>
-
             <span className="px-4 py-2 font-semibold text-gray-900 min-w-[40px] text-center">
               {quantity}
             </span>
-
             <button
               onClick={handleIncrement}
               disabled={isBusy}
@@ -168,10 +148,9 @@ const CartItem = ({ item }) => {
                   : undefined
               }
             >
-              {isUpdating ? '…' : '+'}
+              {isUpdating ? '\u2026' : '+'}
             </button>
           </div>
-
           <div className="text-right">
             <p className="text-sm text-gray-600">Subtotal</p>
             <p className="text-lg font-bold text-gray-900">{formatCurrency(subtotal)}</p>
@@ -180,19 +159,22 @@ const CartItem = ({ item }) => {
 
         {/* Action Buttons */}
         <div className="mt-3 flex gap-3">
-          <button
-            onClick={handleSaveForLater}
-            disabled={isBusy}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium transition disabled:opacity-50"
-          >
-            {isSaving ? 'Saving…' : 'Save for Later'}
-          </button>
+          {/* Save for Later is auth-only — hidden for guests */}
+          {!isGuest && (
+            <button
+              onClick={handleSaveForLater}
+              disabled={isBusy}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium transition disabled:opacity-50"
+            >
+              {isSaving ? 'Saving\u2026' : 'Save for Later'}
+            </button>
+          )}
           <button
             onClick={handleRemove}
             disabled={isBusy}
             className="text-sm text-red-600 hover:text-red-700 font-medium transition disabled:opacity-50"
           >
-            {isRemoving ? 'Removing…' : 'Remove'}
+            {isRemoving ? 'Removing\u2026' : 'Remove'}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import useCart from "@/features/cart/hooks/useCart";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import PATHS from "@/routes/paths";
 import SEO from "@/components/common/SEO";
 import { useSEO } from "@/hooks/useSEO";
@@ -9,6 +10,7 @@ import CartItemSkeleton, { OrderSummarySkeleton } from "@/components/skeleton/Ca
 
 const CartPage = () => {
   const { items, cartTotal, loading, error, removeItem, updateItem, emptyCart } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const { seoProps } = useSEO({
@@ -17,7 +19,17 @@ const CartPage = () => {
     robots: 'noindex,nofollow',
   });
 
-  const handleCheckout = () => navigate(PATHS.CHECKOUT);
+  // Only Checkout requires authentication.
+  // Guests see the full cart page and can manage items freely.
+  const handleCheckout = () => {
+    if (!user) {
+      navigate(PATHS.LOGIN, { state: { from: PATHS.CHECKOUT } });
+      return;
+    }
+    navigate(PATHS.CHECKOUT);
+  };
+
+  const isGuest = !user;
 
   /* ── Loading ── */
   if (loading) {
@@ -31,10 +43,7 @@ const CartPage = () => {
             <div className="lg:col-span-2">
               <div
                 className="rounded-lg overflow-hidden"
-                style={{
-                  background: "var(--card-bg)",
-                  border: "1px solid var(--border-color)",
-                }}
+                style={{ background: "var(--card-bg)", border: "1px solid var(--border-color)" }}
               >
                 <div
                   className="px-6 py-4"
@@ -115,6 +124,33 @@ const CartPage = () => {
           </p>
         </div>
 
+        {/* Guest banner */}
+        {isGuest && (
+          <div
+            className="mb-6 flex items-center gap-3 rounded-lg px-4 py-3"
+            style={{
+              background: 'var(--info-bg, #eff6ff)',
+              border: '1px solid var(--info-border, #bfdbfe)',
+            }}
+          >
+            <svg className="h-5 w-5 flex-shrink-0" style={{ color: 'var(--info-text, #2563eb)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm" style={{ color: 'var(--info-text, #1e40af)' }}>
+              You’re shopping as a guest. Your cart is saved locally.
+              {' '}
+              <button
+                onClick={() => navigate(PATHS.LOGIN, { state: { from: PATHS.CART } })}
+                className="font-semibold underline"
+                style={{ color: 'var(--info-text, #1e40af)' }}
+              >
+                Log in
+              </button>
+              {' '}to save your cart to your account.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div
@@ -135,6 +171,7 @@ const CartPage = () => {
                       onUpdateQuantity={updateItem}
                       onRemove={removeItem}
                       onSaveForLater={() => {}}
+                      isGuest={isGuest}
                     />
                   </div>
                 ))}
@@ -161,6 +198,7 @@ const CartPage = () => {
               onCheckout={handleCheckout}
               onClearCart={emptyCart}
               loading={loading}
+              isGuest={isGuest}
             />
           </div>
         </div>

@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useProductDetailQuery } from "@/hooks/useQueryProducts";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useAddToCart, useCartQuery, useRemoveFromCart } from "@/features/cart/hooks/useCart";
+import { isInGuestCart } from "@/features/cart/services/guestCartService";
 import { useToggleWishlist } from "@/features/wishlist/hooks/useWishlist";
 import ProductImageGallery from "../components/ProductImageGallery";
 import ProductInfo from "../components/ProductInfo";
@@ -15,9 +16,6 @@ import Breadcrumbs from "@/components/common/Breadcrumbs";
 import { useProductSEO } from "@/hooks/useSEO";
 import PATHS from "@/routes/paths";
 import "../styles/ProductDetail.css";
-
-// Note: No CartToast import needed — toast fires globally via
-// useAddToCart → toastStore → CartToastPortal in App.jsx
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -34,39 +32,47 @@ const ProductDetailPage = () => {
   const error = isError ? (queryError?.message ?? 'Product not found') : null;
   const { user } = useAuth();
 
-  const addToCartMutation = useAddToCart();
+  const addToCartMutation    = useAddToCart();
   const removeFromCartMutation = useRemoveFromCart();
 
-  // ── Persistent in-cart check ──────────────────────────────────────────────
+  // Authenticated: derive isInCart from live TanStack Query cache.
   const { data: cartData } = useCartQuery();
-  const isInCart = (cartData?.items ?? []).some(
+  const authInCart = (cartData?.items ?? []).some(
     (item) => String(item.productId) === String(id)
   );
 
-  // ── Wishlist ──────────────────────────────────────────────────────────────
-  // useToggleWishlist handles both guest (LocalStorage) and authenticated
-  // (backend) paths. Guests are NOT redirected — they get the same heart
-  // toggle + toast experience as WishlistHeart.jsx.
+  // Guest: derive isInCart from guestCartService.
+  const [guestInCart, setGuestInCart] = useState(() =>
+    !user ? isInGuestCart(String(id)) : false
+  );
+  useEffect(() => {
+    if (user) return;
+    const sync = () => setGuestInCart(isInGuestCart(String(id)));
+    window.addEventListener('guestCartUpdated', sync);
+    return () => window.removeEventListener('guestCartUpdated', sync);
+  }, [user, id]);
+
+  const isInCart = user ? authInCart : guestInCart;
+
+  // useToggleWishlist handles both guest and authenticated paths.
   const { isWishlisted, toggle: handleWishlistToggle, busy: wishBusy } =
     useToggleWishlist(id);
 
-  // ── Button loading state ─────────────────────────────────────────────────
-  const [addingToCart, setAddingToCart] = useState(false);
+  const [addingToCart,    setAddingToCart]    = useState(false);
   const [removingFromCart, setRemovingFromCart] = useState(false);
-  const [buyingNow, setBuyingNow] = useState(false);
-  const [errorToast, setErrorToast] = useState(false);
+  const [buyingNow,       setBuyingNow]       = useState(false);
+  const [errorToast,      setErrorToast]      = useState(false);
 
   const triggerErrorToast = () => {
     setErrorToast(true);
     setTimeout(() => setErrorToast(false), 2750);
   };
 
+  // Guests can add to cart freely. Only Checkout requires auth (CartPage).
   const handleAddToCart = async () => {
-    if (!user) { navigate(PATHS.LOGIN); return; }
     if (isInCart) return;
     setAddingToCart(true);
     try {
-      // Toast fires automatically from useAddToCart onSuccess
       await addToCartMutation.mutateAsync({ product, quantity: 1 });
     } catch {
       triggerErrorToast();
@@ -75,8 +81,8 @@ const ProductDetailPage = () => {
     }
   };
 
+  // Remove: guests can remove via guestCartService (useRemoveFromCart supports guests).
   const handleRemoveFromCart = async () => {
-    if (!user) { navigate(PATHS.LOGIN); return; }
     if (!isInCart) return;
     setRemovingFromCart(true);
     try {
@@ -88,11 +94,14 @@ const ProductDetailPage = () => {
     }
   };
 
+  // Buy Now: add to cart then go to cart page (not checkout).
+  // Checkout auth gate is enforced on CartPage, not here.
   const handleBuyNow = async () => {
-    if (!user) { navigate(PATHS.LOGIN); return; }
     setBuyingNow(true);
     try {
-      await addToCartMutation.mutateAsync({ product, quantity: 1 });
+      if (!isInCart) {
+        await addToCartMutation.mutateAsync({ product, quantity: 1 });
+      }
       navigate(PATHS.CART);
     } catch {
       triggerErrorToast();
@@ -102,8 +111,6 @@ const ProductDetailPage = () => {
   };
 
   const idMismatch = product && String(product.id) !== String(id);
-  
-  // Call hook before any conditional returns (React Hooks Rule)
   const { seoProps } = useProductSEO(product);
 
   if (loading || idMismatch) return <ProductDetailSkeleton />;
@@ -111,7 +118,7 @@ const ProductDetailPage = () => {
   if (error) {
     return (
       <div className="pdp-page">
-        <button className="pdp-back" onClick={() => navigate(PATHS.PRODUCTS)}>← Back to Products</button>
+        <button className="pdp-back" onClick={() => navigate(PATHS.PRODUCTS)}>&#8592; Back to Products</button>
         <div className="pdp-error">
           <span className="pdp-error__icon">⚠️</span>
           <p>{error}</p>
@@ -123,7 +130,6 @@ const ProductDetailPage = () => {
 
   if (!product) return null;
 
-  // Build breadcrumb items
   const breadcrumbItems = [
     { label: 'Home', path: PATHS.HOME },
     { label: 'Products', path: PATHS.PRODUCTS },
@@ -140,7 +146,7 @@ const ProductDetailPage = () => {
   return (
     <article className="pdp-page sk-loaded">
       <SEO {...seoProps} />
-      <button className="pdp-back" onClick={() => navigate(PATHS.PRODUCTS)}>← Back to Products</button>
+      <button className="pdp-back" onClick={() => navigate(PATHS.PRODUCTS)}>&#8592; Back to Products</button>
 
       <Breadcrumbs items={breadcrumbItems} className="pdp-breadcrumb" />
 
@@ -186,7 +192,6 @@ const ProductDetailPage = () => {
         <ReviewList productId={id} currentUser={user ?? null} />
       </div>
 
-      {/* Error toast — inline style, no CSS dependency */}
       {errorToast && (
         <div role="alert" style={{
           position: 'fixed',
