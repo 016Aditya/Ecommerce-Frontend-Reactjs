@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFeaturedProducts } from '@/features/products/hooks/useFeaturedProducts';
 import { formatCurrencyTrimmed } from '@/utils/currency';
@@ -37,7 +37,6 @@ function SkeletonCard() {
   );
 }
 
-// Stage 1: memoised so parent re-renders don't re-render every card in the grid
 const FeaturedCard = memo(function FeaturedCard({ product }) {
   const navigate = useNavigate();
   const openProduct = () => navigate(buildPath(PATHS.PRODUCT_DETAIL, product.id));
@@ -69,7 +68,6 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
       tabIndex={0}
       onKeyDown={(e) => e.key === 'Enter' && openProduct()}
     >
-      {/* Image */}
       <div
         className="relative flex w-full items-center justify-center overflow-hidden"
         style={{
@@ -102,7 +100,6 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
         )}
       </div>
 
-      {/* Content */}
       <div className="flex flex-1 flex-col gap-1.5 px-3 pb-3 pt-1.5">
         <p
           className="featured-card__name line-clamp-2 text-sm font-semibold leading-snug"
@@ -183,12 +180,88 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
   );
 });
 
+// ── Carousel arrow button ─────────────────────────────────────────────────
+function ArrowButton({ direction, onClick, hidden }) {
+  if (hidden) return null;
+  return (
+    <button
+      onClick={onClick}
+      aria-label={direction === 'left' ? 'Scroll left' : 'Scroll right'}
+      className="carousel-arrow absolute top-1/2 -translate-y-1/2 z-10 flex items-center justify-center rounded-full"
+      style={{
+        [direction === 'left' ? 'left' : 'right']: '-18px',
+        width: '40px',
+        height: '40px',
+        backgroundColor: 'rgba(255,255,255,0.12)',
+        border: '1px solid var(--border-color)',
+        cursor: 'pointer',
+        flexShrink: 0,
+      }}
+      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.22)')}
+      onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.12)')}
+    >
+      <svg
+        width="18" height="18" viewBox="0 0 24 24"
+        fill="none" stroke="var(--text-primary)" strokeWidth="2.2"
+        strokeLinecap="round" strokeLinejoin="round"
+      >
+        {direction === 'left'
+          ? <path d="M15.75 19.5 8.25 12l7.5-7.5" />
+          : <path d="m8.25 4.5 7.5 7.5-7.5 7.5" />}
+      </svg>
+    </button>
+  );
+}
+
+// ── Card width helper — resolves to px at runtime based on viewport ────────
+function getCardWidth(containerWidth) {
+  // 5 cards on xl (≥1280), 4 on lg (≥1024), 3 on md (≥768)
+  let count = 3;
+  if (containerWidth >= 1280) count = 5;
+  else if (containerWidth >= 1024) count = 4;
+  const gap = 12;
+  return Math.floor((containerWidth - gap * (count - 1)) / count);
+}
+
 function FeaturedProducts() {
   const { products, loading, error } = useFeaturedProducts();
   const navigate = useNavigate();
 
-  const gridClass =
-    'grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
+  const scrollRef   = useRef(null);
+  const wrapperRef  = useRef(null);
+  const [atStart, setAtStart] = useState(true);
+  const [atEnd,   setAtEnd]   = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768);
+
+  // Track viewport breakpoint
+  useEffect(() => {
+    const onResize = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const updateArrows = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setAtStart(el.scrollLeft <= 2);
+    setAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 2);
+  }, []);
+
+  // Re-check arrow visibility after products load
+  useEffect(() => {
+    updateArrows();
+  }, [products, updateArrows]);
+
+  const scrollBy = (dir) => {
+    const el = scrollRef.current;
+    const wrapper = wrapperRef.current;
+    if (!el || !wrapper) return;
+    const cardWidth = getCardWidth(wrapper.clientWidth);
+    el.scrollBy({ left: dir === 'left' ? -(cardWidth + 12) : (cardWidth + 12), behavior: 'smooth' });
+  };
+
+  // Mobile: 2-col grid (unchanged from original)
+  const mobileGridClass = 'grid grid-cols-2 gap-3';
 
   return (
     <section
@@ -205,6 +278,7 @@ function FeaturedProducts() {
           boxShadow: 'var(--shadow-md)',
         }}
       >
+        {/* Header */}
         <div className="flex items-center justify-between gap-4" style={{ marginBottom: '13px' }}>
           <div>
             <h2
@@ -234,14 +308,16 @@ function FeaturedProducts() {
           </button>
         </div>
 
+        {/* Loading skeletons */}
         {loading ? (
-          <div className={gridClass}>
+          <div className={mobileGridClass}>
             {Array.from({ length: 6 }).map((_, i) => (
               <SkeletonCard key={i} />
             ))}
           </div>
         ) : null}
 
+        {/* Error */}
         {!loading && error ? (
           <div
             className="rounded-xl border px-4 py-6 text-center text-sm"
@@ -256,6 +332,7 @@ function FeaturedProducts() {
           </div>
         ) : null}
 
+        {/* Empty */}
         {!loading && !error && products.length === 0 ? (
           <div
             className="rounded-xl border px-4 py-6 text-center text-sm"
@@ -267,12 +344,54 @@ function FeaturedProducts() {
           </div>
         ) : null}
 
+        {/* Products: carousel on desktop, 2-col grid on mobile */}
         {!loading && !error && products.length > 0 ? (
-          <div className={gridClass}>
-            {products.map((product) => (
-              <FeaturedCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            {/* ── MOBILE: 2-column grid ── */}
+            <div className={`${mobileGridClass} md:hidden`}>
+              {products.map((product) => (
+                <FeaturedCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            {/* ── DESKTOP: horizontal carousel ── */}
+            <div
+              ref={wrapperRef}
+              className="hidden md:block"
+              style={{ position: 'relative', padding: '0 22px' }}
+            >
+              <ArrowButton direction="left"  onClick={() => scrollBy('left')}  hidden={atStart} />
+              <ArrowButton direction="right" onClick={() => scrollBy('right')} hidden={atEnd} />
+
+              <div
+                ref={scrollRef}
+                onScroll={updateArrows}
+                style={{
+                  display:              'flex',
+                  gap:                  '12px',
+                  overflowX:            'auto',
+                  scrollbarWidth:       'none',
+                  msOverflowStyle:      'none',
+                  scrollSnapType:       'x mandatory',
+                  WebkitOverflowScrolling: 'touch',
+                  paddingBottom:        '4px',
+                }}
+              >
+                {products.map((product) => (
+                  <div
+                    key={product.id}
+                    style={{
+                      flex:       '0 0 auto',
+                      width:      'clamp(180px, calc((100% - 48px) / 5), 260px)',
+                      scrollSnapAlign: 'start',
+                    }}
+                  >
+                    <FeaturedCard product={product} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         ) : null}
       </div>
     </section>
