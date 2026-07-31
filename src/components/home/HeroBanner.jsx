@@ -98,7 +98,7 @@ function HeroBanner() {
       >
         <div
           className="container-app flex items-center justify-between"
-          style={{ paddingTop: "clamp(20px, 5vw, 32px)", paddingBottom: "clamp(20px, 5vw, 32px)" }}
+          style={{ paddingTop: "clamp(21px, 5.25vw, 34px)", paddingBottom: "clamp(21px, 5.25vw, 34px)" }}
         >
           {/* Left content */}
           <div className="hero-banner__content flex flex-col gap-3 max-w-md">
