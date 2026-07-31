@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import PATHS from "@/routes/paths";
 
@@ -55,50 +54,6 @@ const DEALS = [
   },
 ];
 
-// ── Single deal category item with hover effects ──────────────────────────
-function DealItem({ item }) {
-  const [hovered, setHovered] = useState(false);
-
-  return (
-    <Link
-      to={item.link}
-      className="deal-item flex flex-col items-center justify-center rounded-sm p-4 gap-2"
-      style={{
-        backgroundColor:  hovered ? 'var(--card-bg)'        : 'var(--bg-tertiary)',
-        border:           hovered ? '1px solid var(--border-color)' : '1px solid transparent',
-        transform:        hovered ? 'translateY(-3px)'      : 'translateY(0)',
-        boxShadow:        hovered ? '0 4px 12px rgba(0,0,0,0.15)' : 'none',
-        transition:       'all 200ms ease-in-out',
-        textDecoration:   'none',
-      }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      <span
-        style={{
-          fontSize:   '1.875rem', /* text-3xl */
-          display:    'inline-block',
-          transform:  hovered ? 'scale(1.15)' : 'scale(1)',
-          transition: 'transform 200ms ease-in-out',
-        }}
-      >
-        {item.emoji}
-      </span>
-      <span
-        style={{
-          fontSize:   '14px',
-          fontWeight: 500,
-          color:      'var(--text-primary)',
-          textAlign:  'center',
-          lineHeight: 1.3,
-        }}
-      >
-        {item.label}
-      </span>
-    </Link>
-  );
-}
-
 function DealSection() {
   return (
     <div className="container-app py-6">
@@ -132,7 +87,26 @@ function DealSection() {
 
             <div className="grid grid-cols-2 gap-2 flex-1">
               {deal.items.map((item) => (
-                <DealItem key={item.label} item={item} />
+                <Link
+                  key={item.label}
+                  to={item.link}
+                  className="flex flex-col items-center justify-center rounded-sm p-4 hover:opacity-80 transition gap-2"
+                  style={{ backgroundColor: "var(--bg-tertiary)" }}
+                >
+                  <span className="text-3xl">{item.emoji}</span>
+                  {/* Category label: 14px / 500 weight / theme-aware colour */}
+                  <span
+                    style={{
+                      fontSize: "14px",
+                      fontWeight: 500,
+                      color: "var(--text-primary)",
+                      textAlign: "center",
+                      lineHeight: 1.3,
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </Link>
               ))}
             </div>
           </div>
