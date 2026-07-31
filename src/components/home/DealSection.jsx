@@ -98,12 +98,12 @@ function DealSection() {
               </Link>
             </div>
 
-            {/* 4-item single horizontal row */}
+            {/* 4-item single horizontal row — no cell backgrounds */}
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(4, 1fr)",
-                gap: "8px",
+                gap: "4px",
               }}
             >
               {deal.items.map((item) => (
@@ -117,9 +117,7 @@ function DealSection() {
                     alignItems:     "center",
                     justifyContent: "center",
                     gap:            "8px",
-                    padding:        "14px 6px",
-                    borderRadius:   "8px",
-                    backgroundColor: "var(--bg-tertiary)",
+                    padding:        "12px 4px",
                     textDecoration: "none",
                   }}
                 >
