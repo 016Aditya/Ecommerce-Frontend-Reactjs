@@ -1,6 +1,19 @@
 .container-app {
-  width: min(100% - 2rem, var(--container-width));
+  width: min(100% - 1.5rem, var(--container-width));
   margin-inline: auto;
+}
+
+@media (min-width: 1024px) {
+  .container-app {
+    width: min(100% - 2rem, var(--container-width));
+  }
+}
+
+@media (min-width: 1400px) {
+  .container-app {
+    /* Near full-bleed on very wide screens — matches reference screenshot */
+    width: min(100% - 1rem, var(--container-width));
+  }
 }
 
 .page-section {
