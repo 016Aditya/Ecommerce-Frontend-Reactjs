@@ -81,11 +81,11 @@ function DealSection() {
               <div>
                 <h2
                   className="font-bold"
-                  style={{ color: "var(--text-primary)", fontSize: "35px", fontWeight: 750 }}
+                  style={{ color: "var(--text-primary)", fontSize: "18px", fontWeight: 700 }}
                 >
                   {deal.title}
                 </h2>
-                <p style={{ color: "#2874f0", fontSize: "21px", fontWeight: 600, marginTop: "2px" }}>
+                <p style={{ color: "#2874f0", fontSize: "13px", fontWeight: 500, marginTop: "2px" }}>
                   {deal.subtitle}
                 </p>
               </div>
