@@ -214,12 +214,19 @@ function FeaturedProducts() {
         <div className="flex items-center justify-between gap-4" style={{ marginBottom: '13px' }}>
           <div>
             <h2
-              className="text-lg font-bold sm:text-xl"
-              style={{ color: 'var(--text-primary)', lineHeight: 1.3 }}
+              style={{
+                color: 'var(--text-primary)',
+                lineHeight: 1.3,
+                fontSize: '22px',
+                fontWeight: 700,
+              }}
             >
               Featured Products
             </h2>
-            <p className="mt-0.5 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            <p
+              className="mt-0.5"
+              style={{ color: 'var(--text-secondary)', fontSize: '13.5px' }}
+            >
               Discover our most popular and trending products.
             </p>
           </div>

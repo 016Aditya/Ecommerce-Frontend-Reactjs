@@ -98,8 +98,14 @@ function DealSection() {
               </Link>
             </div>
 
-            {/* 2×2 grid of category cells */}
-            <div className="grid grid-cols-2 gap-3 flex-1">
+            {/* 4-item single horizontal row */}
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "8px",
+              }}
+            >
               {deal.items.map((item) => (
                 <Link
                   key={item.label}
@@ -110,9 +116,8 @@ function DealSection() {
                     flexDirection:  "column",
                     alignItems:     "center",
                     justifyContent: "center",
-                    gap:            "10px",
-                    padding:        "20px 12px",
-                    minHeight:      "110px",
+                    gap:            "8px",
+                    padding:        "14px 6px",
                     borderRadius:   "8px",
                     backgroundColor: "var(--bg-tertiary)",
                     textDecoration: "none",
