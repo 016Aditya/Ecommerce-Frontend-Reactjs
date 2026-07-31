@@ -47,7 +47,7 @@ const DEALS = [
     link: productPath("Books"),
     items: [
       { label: "Bestsellers", emoji: "📚", link: productPath("Books", "Novel") },
-      { label: "Sports Gear", emoji: "⚽", link: productPath("Sports") },
+      { label: "Sports Gear", emoji: "⚽",    link: productPath("Sports") },
       { label: "Fitness",     emoji: "🏋️", link: productPath("Sports", "Gym") },
       { label: "Outdoor",     emoji: "🏕️", link: productPath("Sports") },
     ],
@@ -61,46 +61,65 @@ function DealSection() {
         {DEALS.map((deal) => (
           <div
             key={deal.title}
-            className="rounded-sm shadow-sm p-4 flex flex-col"
-            style={{ backgroundColor: "var(--card-bg)" }}
+            className="flex flex-col"
+            style={{
+              backgroundColor: "var(--card-bg)",
+              borderRadius: "12px",
+              padding: "20px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+            }}
           >
-            <div className="mb-3 flex items-baseline justify-between">
+            {/* Card header */}
+            <div className="mb-4 flex items-baseline justify-between">
               <div>
                 <h2
                   className="text-base font-bold"
-                  style={{ color: "var(--text-primary)" }}
+                  style={{ color: "var(--text-primary)", fontSize: "16px" }}
                 >
                   {deal.title}
                 </h2>
-                <p className="text-xs font-semibold" style={{ color: "#2874f0" }}>
+                <p style={{ color: "#2874f0", fontSize: "13px", fontWeight: 600, marginTop: "2px" }}>
                   {deal.subtitle}
                 </p>
               </div>
               <Link
                 to={deal.link}
-                className="text-xs font-medium hover:underline"
-                style={{ color: "#2874f0" }}
+                className="hover:underline"
+                style={{ color: "#2874f0", fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}
               >
                 See more
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 flex-1">
+            {/* 2×2 grid of category cells */}
+            <div className="grid grid-cols-2 gap-3 flex-1">
               {deal.items.map((item) => (
                 <Link
                   key={item.label}
                   to={item.link}
-                  className="flex flex-col items-center justify-center rounded-sm p-4 hover:opacity-80 transition gap-2"
-                  style={{ backgroundColor: "var(--bg-tertiary)" }}
+                  className="hover:opacity-80 transition"
+                  style={{
+                    display:        "flex",
+                    flexDirection:  "column",
+                    alignItems:     "center",
+                    justifyContent: "center",
+                    gap:            "10px",
+                    padding:        "20px 12px",
+                    minHeight:      "110px",
+                    borderRadius:   "8px",
+                    backgroundColor: "var(--bg-tertiary)",
+                    textDecoration: "none",
+                  }}
                 >
-                  <span className="text-3xl">{item.emoji}</span>
-                  {/* Category label: 14px / 500 weight / theme-aware colour */}
+                  <span style={{ fontSize: "2.6rem", lineHeight: 1, display: "block" }}>
+                    {item.emoji}
+                  </span>
                   <span
                     style={{
-                      fontSize: "14px",
+                      fontSize:   "15px",
                       fontWeight: 500,
-                      color: "var(--text-primary)",
-                      textAlign: "center",
+                      color:      "var(--text-primary)",
+                      textAlign:  "center",
                       lineHeight: 1.3,
                     }}
                   >
