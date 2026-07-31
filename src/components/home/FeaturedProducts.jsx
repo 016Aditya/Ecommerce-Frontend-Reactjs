@@ -192,8 +192,14 @@ function FeaturedProducts() {
 
   return (
     <section
-      className="featured-section container-app"
-      style={{ paddingTop: '21px', paddingBottom: '21px' }}
+      className="featured-section"
+      style={{
+        paddingTop: '21px',
+        paddingBottom: '21px',
+        width: '100%',
+        maxWidth: 'calc(100% - 48px)',
+        marginInline: 'auto',
+      }}
     >
       <div
         className="featured-shell overflow-hidden"

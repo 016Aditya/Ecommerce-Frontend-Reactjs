@@ -56,7 +56,14 @@ const DEALS = [
 
 function DealSection() {
   return (
-    <div className="container-app py-6">
+    <div
+      style={{
+        width: "100%",
+        maxWidth: "calc(100% - 48px)",
+        marginInline: "auto",
+        paddingBlock: "1.5rem",
+      }}
+    >
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {DEALS.map((deal) => (
           <div
@@ -73,12 +80,12 @@ function DealSection() {
             <div className="mb-4 flex items-baseline justify-between">
               <div>
                 <h2
-                  className="text-base font-bold"
-                  style={{ color: "var(--text-primary)", fontSize: "16px" }}
+                  className="font-bold"
+                  style={{ color: "var(--text-primary)", fontSize: "35px", fontWeight: 750 }}
                 >
                   {deal.title}
                 </h2>
-                <p style={{ color: "#2874f0", fontSize: "13px", fontWeight: 600, marginTop: "2px" }}>
+                <p style={{ color: "#2874f0", fontSize: "21px", fontWeight: 600, marginTop: "2px" }}>
                   {deal.subtitle}
                 </p>
               </div>
