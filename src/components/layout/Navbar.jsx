@@ -172,7 +172,7 @@ function Navbar() {
 
       {/* ══ DESKTOP PRIMARY BAR ══ */}
       <div className="hidden md:block" style={{ backgroundColor: "var(--navbar-bg)", minHeight: "68px" }}>
-        <div style={{ width:"100%", padding:"0 19px", height:"68px", display:"flex", alignItems:"center", gap:"11px" }}>
+        <div style={{ maxWidth:"1282px", margin:"0 auto", padding:"0 19px", height:"68px", display:"flex", alignItems:"center", gap:"11px" }}>
           <Link to={PATHS.HOME} aria-label="ShopApp Home"
             style={{ ...navItemBase, flexDirection:"column", alignItems:"flex-start", padding:"4px 7px 4px 13px", minWidth:"150px", flexShrink:0 }}
             onMouseEnter={(e)=>(e.currentTarget.style.borderColor="#fff")}
