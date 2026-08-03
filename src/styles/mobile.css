@@ -299,6 +299,54 @@
 
   .mobile-category-nav__item--active { color: #fff; }
   .mobile-category-nav__item--active::after { opacity: 1; transform: scaleX(1); }
+
+  .mobile-footer { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+
+  .mobile-footer__back-to-top {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-footer__back-to-top:active { background-color: #2d3f52; }
+
+  .mobile-footer__section {
+    min-width: 0;
+  }
+
+  .mobile-footer__section h4 {
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .mobile-footer__section ul {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .mobile-footer__section li { min-width: 0; }
+
+  .mobile-footer__section a {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    gap: 6px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-footer__section a:active { color: #fff; background: rgba(255, 255, 255, 0.06); opacity: 0.9; }
+
+  .mobile-footer__brand {
+    padding-top: 52px;
+  }
+
+  .mobile-footer__logo { font-size: 19.5px; }
+  .mobile-footer__copyright { font-size: 13px; line-height: 1.5; }
 }
 
 

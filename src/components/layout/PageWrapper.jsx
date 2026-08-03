@@ -14,6 +14,7 @@ const PageWrapper = () => {
         <Outlet />
       </main>
       <div className="hidden md:block"><Footer /></div>
+      <div className="md:hidden"><Footer mobile /></div>
       <BottomNav />
     </div>
   );

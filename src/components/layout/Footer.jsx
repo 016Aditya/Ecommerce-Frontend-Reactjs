@@ -1,24 +1,27 @@
 import { Link } from "react-router-dom";
 import PATHS from "@/routes/paths";
 
-function Footer() {
+function Footer({ mobile = false }) {
+  const contentClass = mobile ? "container-app py-8" : "container-app py-10";
+  const gridClass = mobile ? "grid grid-cols-2 gap-x-5 gap-y-10" : "grid grid-cols-2 gap-8 md:grid-cols-4";
+
   return (
-    <footer className="bg-[#172337] text-slate-300 mt-0">
+    <footer className={`bg-[#172337] text-slate-300 mt-0${mobile ? ' mobile-footer' : ''}`}>
 
       {/* ── Back-to-top strip ─────────────────────────────────────────────── */}
       <div
-        className="bg-[#232f3e] py-3 text-center text-sm text-white cursor-pointer hover:bg-[#2d3f52] transition"
+        className={`bg-[#232f3e] py-3 text-center text-sm text-white cursor-pointer hover:bg-[#2d3f52] transition${mobile ? ' mobile-footer__back-to-top' : ''}`}
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       >
         Back to top
       </div>
 
       {/* ── Main footer grid ──────────────────────────────────────────────── */}
-      <div className="container-app py-10">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
+      <div className={contentClass}>
+        <div className={gridClass}>
 
           {/* About */}
-          <div>
+          <div className={mobile ? 'mobile-footer__section' : undefined}>
             <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">About</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to={PATHS.CUSTOMER_SERVICE} className="hover:text-white transition">About ShopApp</Link></li>
@@ -28,7 +31,7 @@ function Footer() {
           </div>
 
           {/* Help */}
-          <div>
+          <div className={mobile ? 'mobile-footer__section' : undefined}>
             <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Help</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to={PATHS.CUSTOMER_SERVICE} className="hover:text-white transition">Payments</Link></li>
@@ -39,7 +42,7 @@ function Footer() {
           </div>
 
           {/* Policy */}
-          <div>
+          <div className={mobile ? 'mobile-footer__section' : undefined}>
             <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Policy</h4>
             <ul className="space-y-2 text-sm">
               <li><Link to={PATHS.CUSTOMER_SERVICE} className="hover:text-white transition">Return Policy</Link></li>
@@ -49,7 +52,7 @@ function Footer() {
           </div>
 
           {/* Contact Us */}
-          <div>
+          <div className={mobile ? 'mobile-footer__section' : undefined}>
             <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-slate-400">Contact Us</h4>
             <ul className="space-y-2 text-sm">
               <li>
@@ -107,15 +110,15 @@ function Footer() {
         </div>
 
         {/* ── Bottom bar ──────────────────────────────────────────────────── */}
-        <div className="mt-8 border-t border-slate-700 pt-6 flex flex-col items-center gap-2">
+        <div className={`mt-8 border-t border-slate-700 pt-6 flex flex-col items-center gap-2${mobile ? ' mobile-footer__brand' : ''}`}>
           {/* Logo */}
           <div className="flex flex-col items-center">
-            <span className="text-lg font-extrabold text-white tracking-tight leading-none">
+            <span className={`text-lg font-extrabold text-white tracking-tight leading-none${mobile ? ' mobile-footer__logo' : ''}`}>
               shop<span className="text-[#ff9900]">App</span>
             </span>
             <span className="text-[10px] text-slate-400 leading-none">.in</span>
           </div>
-          <p className="text-xs text-slate-500 text-center">
+          <p className={`text-xs text-slate-500 text-center${mobile ? ' mobile-footer__copyright' : ''}`}>
             © 2026 ShopApp.in — Built by{" "}
             <a
               href="https://www.linkedin.com/in/aditya016"
