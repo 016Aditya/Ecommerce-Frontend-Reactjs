@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import BottomNav from "./BottomNav";
 
 const PageWrapper = () => {
   return (
@@ -9,10 +10,11 @@ const PageWrapper = () => {
       style={{ backgroundColor: "var(--bg-primary)", color: "var(--text-primary)" }}
     >
       <Navbar />
-      <main className="flex-1">
+      <main className="flex-1 mobile-page-content">
         <Outlet />
       </main>
-      <Footer />
+      <div className="hidden md:block"><Footer /></div>
+      <BottomNav />
     </div>
   );
 };

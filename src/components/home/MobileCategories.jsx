@@ -61,7 +61,7 @@ function MobileCategories() {
   };
 
   return (
-    <section className="mobile-categories" aria-label="Shop by category">
+    <section className="mobile-categories md:hidden" aria-label="Shop by category">
       <div
         ref={carouselRef}
         className="mobile-categories__carousel"

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import HeroBanner from '@/components/home/HeroBanner';
 import DealSection from '@/components/home/DealSection';
+import MobileCategories from '@/components/home/MobileCategories';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import SEO from '@/components/common/SEO';
 import { useSEO } from '@/hooks/useSEO';
@@ -24,7 +25,8 @@ function HomePage() {
     <main className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <SEO {...seoProps} />
       <HeroBanner />
-      <DealSection />
+      <div className="hidden md:block"><DealSection /></div>
+      <MobileCategories />
       <FeaturedProducts />
     </main>
   );
