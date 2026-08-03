@@ -1,5 +1,9 @@
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import PATHS from '@/routes/paths';
+import useAuth from '@/features/auth/hooks/useAuth';
+import { useWishlistQuery } from '@/features/wishlist/hooks/useWishlist';
+import { getGuestWishlist } from '@/services/guestWishlistService';
 
 // This component is rendered only below the existing md breakpoint.
 const navItems = [
@@ -10,12 +14,38 @@ const navItems = [
   { label: 'Account', to: PATHS.PROFILE, icon: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></> },
 ];
 
+function useGuestWishlistCount() {
+  const [count, setCount] = useState(() => getGuestWishlist().length);
+
+  useEffect(() => {
+    const syncCount = () => setCount(getGuestWishlist().length);
+    window.addEventListener('guestWishlistUpdated', syncCount);
+    window.addEventListener('storage', syncCount);
+    return () => {
+      window.removeEventListener('guestWishlistUpdated', syncCount);
+      window.removeEventListener('storage', syncCount);
+    };
+  }, []);
+
+  return count;
+}
+
 export default function BottomNav() {
+  const { user } = useAuth();
+  const { data: wishlistItems = [] } = useWishlistQuery();
+  const guestWishlistCount = useGuestWishlistCount();
+  const wishlistCount = user ? wishlistItems.length : guestWishlistCount;
+
   return (
     <nav className="bottom-nav md:hidden" aria-label="Mobile navigation">
       {navItems.map((item) => (
         <NavLink key={item.label} to={item.to} end={item.to === PATHS.HOME} className={({ isActive }) => `bottom-nav__item${isActive ? ' bottom-nav__item--active' : ''}`}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{item.icon}</svg>
+          <span className="bottom-nav__icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{item.icon}</svg>
+            {item.label === 'Wishlist' && wishlistCount > 0 ? (
+              <span className="bottom-nav__badge">{wishlistCount > 99 ? '99+' : wishlistCount}</span>
+            ) : null}
+          </span>
           <span>{item.label}</span>
         </NavLink>
       ))}
