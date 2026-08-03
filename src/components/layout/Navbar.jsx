@@ -1,4 +1,4 @@
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import PATHS from "@/routes/paths";
 import { useCartQuery, useGuestCartCount } from "@/features/cart/hooks/useCart";
@@ -30,49 +30,6 @@ const NAV_LINKS = [
   { label: "Sports",           path: `${PATHS.PRODUCTS}?category=Sports`,       dropdown: null },
   { label: "New Releases",     path: PATHS.PRODUCTS,  dropdown: null },
   { label: "Customer Service", path: PATHS.CUSTOMER_SERVICE, dropdown: null },
-];
-
-const MOBILE_PRIMARY = [
-  {
-    label: "Deals",
-    path: PATHS.PRODUCTS,
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
-        <line x1="7" y1="7" x2="7.01" y2="7"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Mobiles",
-    path: `${PATHS.PRODUCTS}?category=Electronics&subcategory=Mobile`,
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
-        <line x1="12" y1="18" x2="12.01" y2="18"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Fashion",
-    path: `${PATHS.PRODUCTS}?category=Clothing`,
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Electronics",
-    path: `${PATHS.PRODUCTS}?category=Electronics`,
-    icon: (
-      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-        <line x1="8" y1="21" x2="16" y2="21"/>
-        <line x1="12" y1="17" x2="12" y2="21"/>
-      </svg>
-    ),
-  },
 ];
 
 const MORE_CATS = [
@@ -131,6 +88,7 @@ function Navbar() {
 
   const showToast  = useToastStore((state) => state.showToast);
   const navigate   = useNavigate();
+  const location   = useLocation();
   const [searchParams] = useSearchParams();
   const [mobileMenuOpen,    setMobileMenuOpen]    = useState(false);
   const [drawerOpen,        setDrawerOpen]        = useState(false);
@@ -146,7 +104,6 @@ function Navbar() {
     }
   }, [drawerOpen]);
 
-  const openDrawer  = () => setDrawerOpen(true);
   const closeDrawer = () => {
     setDrawerVisible(false);
     setTimeout(() => setDrawerOpen(false), 260);
@@ -273,7 +230,7 @@ function Navbar() {
       <div className="md:hidden" style={{ backgroundColor: "var(--navbar-bg)" }}>
 
         {/* Row 1: Hamburger · Logo · spacer · Account · Cart · ThemeToggle */}
-        <div style={{ display:"flex", alignItems:"center", padding:"10px 14px", gap:"10px" }}>
+        <div style={{ display:"flex", alignItems:"center", padding:"10px 14px 11px", gap:"10px" }}>
           <button aria-label="Open menu" onClick={()=>setMobileMenuOpen(!mobileMenuOpen)}
             style={{ background:"none", border:"none", cursor:"pointer", padding:"4px", flexShrink:0, display:"flex", alignItems:"center" }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round">
@@ -346,36 +303,21 @@ function Navbar() {
           </button>
         </div>
 
-        {/* Row 3: Shop By */}
-        <div style={{
-          backgroundColor: "var(--navbar-bg)",
-          padding: "8px 16px 12px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-        }}>
-          <p style={{ fontSize: "13px", fontWeight: 400, color: "#9ca3af", marginBottom: "10px", lineHeight: 1 }}>Shop By</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", alignItems: "center", justifyItems: "center", width: "100%" }}>
-            {MOBILE_PRIMARY.map((cat) => (
-              <Link key={cat.label} to={cat.path}
-                style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", textDecoration: "none", WebkitTapHighlightColor: "transparent" }}
-              >
-                <span style={{ color: "#e2e8f0", display: "flex" }}>{cat.icon}</span>
-                <span style={{ fontSize: "12px", fontWeight: 400, color: "#F3F4F6", lineHeight: 1.2, whiteSpace: "nowrap" }}>{cat.label}</span>
+        {/* Row 3: mobile equivalent of the desktop category navigation */}
+        <nav className="mobile-category-nav" aria-label="Product categories">
+          {[{ label: 'All', path: PATHS.PRODUCTS }, ...NAV_LINKS].map((link) => {
+            const linkCategory = link.path.split('?')[1] ? new URLSearchParams(link.path.split('?')[1]).get('category') : null;
+            const isActive = link.label === 'All'
+              ? (location.pathname === PATHS.HOME || (location.pathname === PATHS.PRODUCTS && !searchParams.get('category')))
+              : linkCategory ? location.pathname === PATHS.PRODUCTS && searchParams.get('category') === linkCategory : false;
+
+            return (
+              <Link key={link.label} to={link.path} className={`mobile-category-nav__item${isActive ? ' mobile-category-nav__item--active' : ''}`}>
+                {link.label}
               </Link>
-            ))}
-            <button onClick={openDrawer} aria-label="More categories"
-              style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", background: "none", border: "none", cursor: "pointer", padding: 0, WebkitTapHighlightColor: "transparent" }}
-            >
-              <span style={{ color: "#e2e8f0", display: "flex" }}>
-                <svg width="26" height="26" viewBox="0 0 26 26" fill="currentColor">
-                  <circle cx="5"  cy="5"  r="2.2"/><circle cx="13" cy="5"  r="2.2"/><circle cx="21" cy="5"  r="2.2"/>
-                  <circle cx="5"  cy="13" r="2.2"/><circle cx="13" cy="13" r="2.2"/><circle cx="21" cy="13" r="2.2"/>
-                  <circle cx="5"  cy="21" r="2.2"/><circle cx="13" cy="21" r="2.2"/><circle cx="21" cy="21" r="2.2"/>
-                </svg>
-              </span>
-              <span style={{ fontSize: "12px", fontWeight: 400, color: "#F3F4F6", whiteSpace: "nowrap" }}>More</span>
-            </button>
-          </div>
-        </div>
+            );
+          })}
+        </nav>
       </div>
 
       {/* ══ MOBILE HAMBURGER DRAWER ══ */}
