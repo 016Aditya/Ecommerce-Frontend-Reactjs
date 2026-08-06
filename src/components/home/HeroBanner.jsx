@@ -16,15 +16,10 @@ const SLIDES = [
   },
   {
     id: 2,
-    title: "Electronics Sale",
-    subtitle: "Up to 60% Off",
-    tag: "MOBILES | LAPTOPS | GADGETS",
-    bg: "from-slate-800 to-slate-900",
-    accent: "#ff9f00",
-    emoji: "📱",
-    cta: "Explore Now",
+    isFullImage: true,
+    imageSrc: "/images/electronics-hero-promo.png.png", // Your active image path
+    bg: "bg-[#020817]", // Dark background color matching the image background
     category: "Electronics",
-    dark: true,
   },
   {
     id: 3,
@@ -89,68 +84,94 @@ function HeroBanner() {
     <div className="hero-banner relative overflow-hidden">
       {/* Entire banner clickable */}
       <div
-        className={`bg-gradient-to-r ${slide.bg} transition-all duration-700 cursor-pointer`}
+        className={`transition-all duration-700 cursor-pointer min-h-[260px] sm:min-h-[320px] md:min-h-[360px] flex items-center justify-center ${
+          slide.isFullImage ? slide.bg : `bg-gradient-to-r ${slide.bg}`
+        }`}
         onClick={goToCategory}
         role="link"
         tabIndex={0}
         aria-label={`Shop ${slide.category}`}
         onKeyDown={(e) => e.key === "Enter" && goToCategory()}
       >
-        <div
-          className="container-app flex items-center justify-between"
-          style={{ paddingTop: "clamp(21px, 5.25vw, 34px)", paddingBottom: "clamp(21px, 5.25vw, 34px)" }}
-        >
-          {/* Left content */}
-          <div className="hero-banner__content flex flex-col gap-3 max-w-md">
-            <span
-              className="text-xs font-bold tracking-widest"
-              style={{ color: slide.accent }}
-            >
-              {slide.tag}
-            </span>
-            <h1
-              className={`hero-banner__title font-extrabold ${
-                slide.dark ? "text-white" : "text-slate-900"
-              }`}
-              style={{ fontSize: "clamp(26px, 6vw, 48px)" }}
-            >
-              {slide.title}
-            </h1>
-            <p
-              className={`hero-banner__subtitle font-bold ${
-                slide.dark ? "text-yellow-400" : "text-slate-700"
-              }`}
-              style={{ fontSize: "clamp(16px, 3.5vw, 26px)" }}
-            >
-              {slide.subtitle}
-            </p>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                goToCategory();
-              }}
-              className="hero-banner__cta mt-2 rounded-sm px-8 py-2.5 text-sm font-bold text-white shadow transition hover:opacity-90"
-              style={{ backgroundColor: slide.accent }}
-            >
-              {slide.cta}
-            </button>
+        {slide.isFullImage ? (
+          /* NO CROPPING: Entire promo image is 100% visible and centered */
+          <div className="w-full h-[260px] sm:h-[320px] md:h-[360px] flex items-center justify-center p-2">
+            <img
+              src={slide.imageSrc}
+              alt="Electronics Sale Promo"
+              className="w-full h-full object-contain pointer-events-none select-none"
+              loading="eager"
+              draggable={false}
+            />
           </div>
-
-          {/* Right — emoji, hidden on xs phones */}
+        ) : (
+          /* Standard layout for Fashion, Books, and Home */
           <div
-            className="hero-banner__emoji select-none hidden sm:block"
-            style={{ fontSize: "clamp(64px, 10vw, 161px)" }}
-            aria-hidden="true"
+            className="
+              container-app
+              flex
+              items-center
+              justify-between
+              gap-8
+              lg:gap-12
+              w-full
+              z-10
+            "
+            style={{ paddingTop: "clamp(21px, 5.25vw, 34px)", paddingBottom: "clamp(21px, 5.25vw, 34px)" }}
           >
-            {slide.emoji}
+            {/* Left content */}
+            <div className="hero-banner__content flex flex-col gap-3 max-w-[460px]">
+              <span
+                className="text-xs font-bold tracking-widest"
+                style={{ color: slide.accent }}
+              >
+                {slide.tag}
+              </span>
+              <h1
+                className="hero-banner__title font-extrabold text-slate-900"
+                style={{ fontSize: "clamp(26px, 6vw, 48px)" }}
+              >
+                {slide.title}
+              </h1>
+              <p
+                className="hero-banner__subtitle font-bold text-slate-700"
+                style={{ fontSize: "clamp(16px, 3.5vw, 26px)" }}
+              >
+                {slide.subtitle}
+              </p>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToCategory();
+                }}
+                className="hero-banner__cta mt-2 rounded-sm px-8 py-2.5 text-sm font-bold text-white shadow transition hover:opacity-90 w-fit"
+                style={{ backgroundColor: slide.accent }}
+              >
+                {slide.cta}
+              </button>
+            </div>
+
+            {/* Right Side - Emoji */}
+            <div className="hidden sm:flex flex-1 justify-end items-center relative h-full">
+              <div
+                className="hero-banner__emoji select-none drop-shadow-lg"
+                style={{
+                  fontSize: "clamp(64px, 10vw, 161px)",
+                }}
+                aria-hidden="true"
+              >
+                {slide.emoji}
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Prev arrow */}
       <button
         onClick={handlePrev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow hover:bg-white transition z-10"
+        className="absolute left-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow hover:bg-white transition z-20"
         aria-label="Previous slide"
       >
         <svg className="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -161,7 +182,7 @@ function HeroBanner() {
       {/* Next arrow */}
       <button
         onClick={handleNext}
-        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow hover:bg-white transition z-10"
+        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow hover:bg-white transition z-20"
         aria-label="Next slide"
       >
         <svg className="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
@@ -170,7 +191,7 @@ function HeroBanner() {
       </button>
 
       {/* Dots */}
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
         {SLIDES.map((_, i) => (
           <button
             key={i}
