@@ -153,7 +153,7 @@ export default function SearchInput({
   return (
     <div ref={containerRef} className={`relative w-full ${className}`.trim()}>
       <div
-        className="flex items-center gap-2 rounded-xl border px-3 py-2"
+        className="flex items-center gap-2 rounded-xl border px-3 py-2 transition-colors"
         style={{
           backgroundColor: 'var(--bg-primary)',
           borderColor: 'var(--border-color)',

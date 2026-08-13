@@ -83,17 +83,31 @@
 
 @media (max-width: 640px) {
   .theme-toggle__track {
-    width: 54px;
-    height: 30px;
+    width: 52px;
+    height: 28px;
   }
 
   .theme-toggle__thumb {
     width: 22px;
     height: 22px;
+    top: 2px;
+    left: 3px;
   }
 
   .theme-toggle--dark .theme-toggle__thumb {
     transform: translateX(24px);
+  }
+
+  .theme-toggle__icon {
+    font-size: 12px;
+  }
+
+  .theme-toggle__icon--sun {
+    left: 6px;
+  }
+
+  .theme-toggle__icon--moon {
+    right: 6px;
   }
 }
 

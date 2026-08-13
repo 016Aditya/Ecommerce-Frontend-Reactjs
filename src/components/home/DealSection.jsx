@@ -74,6 +74,16 @@ function DealSection() {
               borderRadius: "12px",
               padding: "20px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+              border: "1px solid transparent",
+              transition: "border-color 200ms ease, transform 200ms ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = "var(--border-color)";
+              e.currentTarget.style.transform = "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = "transparent";
+              e.currentTarget.style.transform = "translateY(0)";
             }}
           >
             {/* Card header */}

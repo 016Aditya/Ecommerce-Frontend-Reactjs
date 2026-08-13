@@ -7,6 +7,7 @@ import { useSEO } from "@/hooks/useSEO";
 import CartItem from "@/features/cart/components/CartItem";
 import OrderSummary from "@/features/cart/components/OrderSummary";
 import CartItemSkeleton, { OrderSummarySkeleton } from "@/components/skeleton/CartItemSkeleton";
+import "@/features/cart/styles/CartItem.css";
 
 const CartPage = () => {
   const { items, loading, error, emptyCart } = useCart();
@@ -27,13 +28,21 @@ const CartPage = () => {
   // Guests see the full cart page and can manage items freely.
   const handleCheckout = () => {
     if (!user) {
-      navigate(PATHS.LOGIN, { state: { from: PATHS.CHECKOUT } });
+      navigate(PATHS.LOGIN, { state: { from: PATHS.CART } });
       return;
     }
     navigate(PATHS.CHECKOUT);
   };
 
   const isGuest = !user;
+
+  // Desktop-only: clicking anywhere on a cart item card opens the product
+  // page, unless the click originated from a button/link/input inside it.
+  const handleCardClick = (event, productId) => {
+    if (window.innerWidth < 768) return;
+    if (event.target.closest('button, a, input, [role="button"]')) return;
+    navigate(`${PATHS.PRODUCTS}/${productId}`);
+  };
 
   /* ── Loading ── */
   if (loading) {
@@ -167,9 +176,13 @@ const CartPage = () => {
               >
                 <h2 className="font-bold" style={{ color: "var(--text-primary)" }}>Cart Items</h2>
               </div>
-              <div style={{ borderColor: "var(--border-color)" }} className="divide-y">
+              <div className="cart-items-list">
                 {items.map((item) => (
-                  <div key={item.productId} className="px-6">
+                  <div
+                    key={item.productId}
+                    className="cart-item-card cart-item-card--clickable"
+                    onClick={(e) => handleCardClick(e, item.productId)}
+                  >
                     <CartItem item={item} isGuest={isGuest} />
                   </div>
                 ))}
@@ -180,8 +193,7 @@ const CartPage = () => {
               >
                 <button
                   onClick={() => navigate(PATHS.PRODUCTS)}
-                  className="font-medium text-sm transition"
-                  style={{ color: "var(--info-text)" }}
+                  className="cart-continue-link font-medium text-sm"
                 >
                   ← Continue Shopping
                 </button>

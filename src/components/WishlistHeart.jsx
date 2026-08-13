@@ -2,7 +2,7 @@
  * WishlistHeart — Premium minimalist wishlist toggle icon.
  *
  * Renders a solid heart in the top-right corner of a product image.
- * - Default : solid light-grey (#BFC5CF), 88% opacity
+ * - Default : solid light-grey (#BFC5CF), 60% opacity
  * - Added   : solid red (#FF4D6D) with pop + burst + glow
  * - Hover   : slightly brighter grey, 1.08x scale (desktop only)
  * - Touch   : tap animation replaces hover, same pop/burst on add

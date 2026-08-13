@@ -1,7 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '../styles/ProductDetail.css';
 
 const PLACEHOLDER = 'https://placehold.co/400x400/f3f4f6/9ca3af?text=No+Image';
+
+const getTouchDistance = (touches) => {
+  const [a, b] = touches;
+  return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+};
 
 /**
  * ProductImageGallery
@@ -13,16 +18,63 @@ const ProductImageGallery = ({ imageUrl, name }) => {
   const images = imageUrl ? [imageUrl] : [];
   const [active, setActive] = useState(images[0] ?? null);
   const [zoomed, setZoomed] = useState(false);
+  const mainRef = useRef(null);
+  const pinchDistanceRef = useRef(null);
 
   const src = active ?? PLACEHOLDER;
+
+  // Tap outside the image closes the zoom (mobile).
+  useEffect(() => {
+    if (!zoomed) return undefined;
+
+    const handleOutside = (event) => {
+      if (mainRef.current && !mainRef.current.contains(event.target)) {
+        setZoomed(false);
+      }
+    };
+
+    document.addEventListener('touchstart', handleOutside);
+    document.addEventListener('mousedown', handleOutside);
+    return () => {
+      document.removeEventListener('touchstart', handleOutside);
+      document.removeEventListener('mousedown', handleOutside);
+    };
+  }, [zoomed]);
+
+  const handleTouchStart = (event) => {
+    if (event.touches.length === 1) {
+      setZoomed(true);
+    } else if (event.touches.length === 2) {
+      pinchDistanceRef.current = getTouchDistance(event.touches);
+    }
+  };
+
+  const handleTouchMove = (event) => {
+    if (event.touches.length === 2 && pinchDistanceRef.current != null) {
+      const distance = getTouchDistance(event.touches);
+      // Fingers pinching together (pinch-out gesture) closes the zoom.
+      if (distance < pinchDistanceRef.current - 15) {
+        setZoomed(false);
+      }
+      pinchDistanceRef.current = distance;
+    }
+  };
+
+  const handleTouchEnd = (event) => {
+    if (event.touches.length < 2) {
+      pinchDistanceRef.current = null;
+    }
+  };
 
   return (
     <div className="pdp-gallery">
       {/* Main image — eager + high priority for LCP */}
       <div
-        className={`pdp-gallery__main${zoomed ? ' pdp-gallery__main--zoomed' : ''}`}
-        onMouseEnter={() => setZoomed(true)}
-        onMouseLeave={() => setZoomed(false)}
+        ref={mainRef}
+        className="pdp-gallery__main"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
         <img
           src={src}
@@ -32,6 +84,7 @@ const ProductImageGallery = ({ imageUrl, name }) => {
           decoding="async"
           width={400}
           height={400}
+          className={`transition-transform duration-200 ease-out md:hover:scale-110 ${zoomed ? 'scale-110' : 'scale-100'}`}
         />
       </div>
 

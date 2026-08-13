@@ -233,7 +233,8 @@ const OrderDetailPage = () => {
 
       <div className="order-detail__header">
         <div>
-          <h1 className="order-detail__title">Order #{shortId}</h1>
+          <h1 className="order-detail__title">Order Details</h1>
+          <p className="order-detail__order-number">Order #{shortId}</p>
           <p className="order-detail__date">Placed on {date}</p>
         </div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px" }}>
@@ -255,7 +256,7 @@ const OrderDetailPage = () => {
       <div className="odp-grid">
         <div className="odp-left">
 
-          <SectionCard icon="📍" iconBg="rgba(59,130,246,0.15)" title="Shipping Address">
+          <SectionCard icon="📍" iconBg="rgba(59,130,246,0.15)" title="Shipping Address" className="odp-card--address">
             <ShippingInfo address={order.address} />
           </SectionCard>
 

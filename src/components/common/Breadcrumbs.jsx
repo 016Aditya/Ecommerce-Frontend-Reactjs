@@ -51,6 +51,7 @@ export function Breadcrumbs({ items = [], className = '' }) {
                     style={{
                       color: 'var(--accent, #0066cc)',
                       textDecoration: 'none',
+                      opacity: 0.85,
                     }}
                   >
                     {item.label}
@@ -60,7 +61,7 @@ export function Breadcrumbs({ items = [], className = '' }) {
                       aria-hidden="true"
                       style={{
                         color: 'var(--text-secondary, #999)',
-                        margin: '0 4px',
+                        margin: '0 6px',
                       }}
                     >
                       /

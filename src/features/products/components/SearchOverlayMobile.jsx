@@ -29,7 +29,7 @@ export default function SearchOverlayMobile({ initialValue = '', onSearch, onClo
           type="button"
           onClick={onClose}
           aria-label="Back"
-          className="p-1 text-lg transition-opacity hover:opacity-70"
+          className="p-1 text-2xl transition-opacity hover:opacity-70"
           style={{ color: 'var(--text-secondary)' }}
         >
           &larr;
@@ -40,6 +40,9 @@ export default function SearchOverlayMobile({ initialValue = '', onSearch, onClo
           onSubmitSearch={onClose}
           onCloseDropdown={onClose}
           autoFocus
+          containerStyle={{ padding: '12px 16px', borderRadius: '14px', borderColor: 'var(--accent)' }}
+          inputStyle={{ fontSize: '16px' }}
+          buttonClassName="[&>svg]:h-6 [&>svg]:w-6"
         />
       </div>
     </div>

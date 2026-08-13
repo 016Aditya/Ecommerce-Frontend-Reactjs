@@ -32,7 +32,7 @@
 .pdp-breadcrumb {
   font-size: 0.8125rem;
   color: var(--text-secondary);
-  margin-bottom: 12px;
+  margin-bottom: 19px;
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
@@ -41,12 +41,82 @@
 .pdp-breadcrumb__sep { color: var(--text-tertiary); }
 .pdp-breadcrumb__current { color: var(--text-primary); font-weight: 500; }
 
+/* ── Wishlist heart button ───────────────────────────────────── */
+.pdp-wish-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 16px 8px 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 9999px;
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 220ms ease, color 220ms ease, background 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+}
+.pdp-wish-btn svg { width: 20px; height: 20px; color: inherit; transition: transform 0.2s; }
+.pdp-wish-btn:hover:not(:disabled) {
+  border-color: #ef4444; color: #ef4444; transform: translateY(-1px); box-shadow: var(--shadow-md);
+}
+.pdp-wish-btn:hover:not(:disabled) svg { transform: scale(1.15); }
+.pdp-wish-btn:active:not(:disabled) { transform: scale(0.97); }
+.pdp-wish-btn--active {
+  border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08);
+}
+.pdp-wish-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Pop + burst animation — same effect as the Product List heart ──── */
+@keyframes pdp-wish-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.26); }
+  70%  { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+.pdp-wish-btn svg.pdp-wish-btn__heart--pop {
+  animation: pdp-wish-pop 260ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.pdp-wish-btn__burst {
+  position: absolute;
+  top: 50%;
+  left: 22px;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+.pdp-wish-btn__ray {
+  position: absolute;
+  width: 2px;
+  height: 7px;
+  border-radius: 1px;
+  background: #ef4444;
+  top: 0;
+  left: 0;
+  transform-origin: 1px 14px;
+  transform: rotate(calc(var(--i) * 45deg)) translateY(-14px);
+  animation: pdp-wish-ray-out 420ms ease-out forwards;
+}
+@keyframes pdp-wish-ray-out {
+  0%   { opacity: 0.9; transform: rotate(calc(var(--i) * 45deg)) translateY(-10px) scaleY(1); }
+  60%  { opacity: 0.5; }
+  100% { opacity: 0;   transform: rotate(calc(var(--i) * 45deg)) translateY(-20px) scaleY(0.4); }
+}
+
 /* ── 3-column grid ─────────────────────────────────────────────── */
 .pdp-grid {
   display: grid;
   grid-template-columns: 340px 1fr 240px;
   gap: 24px;
   align-items: start;
+  margin-bottom: 20px;
 }
 @media (max-width: 1024px) {
   .pdp-grid {
@@ -70,11 +140,11 @@
   top: 72px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 .pdp-gallery__main {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border: 1px solid color-mix(in srgb, var(--border-color) 95%, white 5%);
+  border-radius: 14px;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -82,16 +152,14 @@
   background: var(--bg-secondary);
   aspect-ratio: 1 / 1;
   cursor: zoom-in;
-  transition: box-shadow 0.2s;
+  transition: box-shadow 0.2s, transform 0.2s;
 }
-.pdp-gallery__main:hover { box-shadow: var(--shadow-md); }
+.pdp-gallery__main:hover { box-shadow: 0 10px 22px rgba(0,0,0,0.18); transform: translateY(-1px); }
 .pdp-gallery__main img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  transition: transform 0.3s ease;
 }
-.pdp-gallery__main--zoomed img { transform: scale(1.15); }
 
 .pdp-gallery__thumbs {
   display: flex;
@@ -121,11 +189,11 @@
   text-transform: capitalize;
 }
 .pdp-info__name {
-  font-size: 1.375rem;
-  font-weight: 500;
-  line-height: 1.35;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 30px;
   color: var(--text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
 }
 .pdp-info__brand {
   font-size: 0.875rem;
@@ -148,7 +216,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
   flex-wrap: nowrap;
 }
 
@@ -212,6 +280,7 @@
   font-family: inherit;
   font-size: 0.875rem;
   color: var(--info-text, #0066c0);
+  opacity: 0.85;
   transition: color 0.2s ease;
   white-space: nowrap;
 }
@@ -256,11 +325,11 @@
   align-items: baseline;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 .pdp-info__price {
-  font-size: 1.75rem;
-  font-weight: 400;
+  font-size: 30px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 .pdp-info__original-price {
@@ -273,9 +342,15 @@
   color: var(--accent);
   font-weight: 500;
 }
-.pdp-info__tax-note { font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 8px; }
+.pdp-info__tax-note { font-size: 14px; color: var(--text-secondary); margin-bottom: 8px; }
+.pdp-info__delivery-estimate { font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px; }
 
-.pdp-info__desc h3,
+.pdp-info__desc h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
 .pdp-info__features h3 {
   font-size: 1rem;
   font-weight: 600;
@@ -393,7 +468,7 @@
 
 /* ── Reviews section ─────────────────────────────────────────────── */
 .pdp-reviews {
-  margin-top: 36px;
+  margin-top: 20px;
   padding-top: 24px;
   border-top: 2px solid var(--border-color);
 }
@@ -462,35 +537,8 @@
 
 /* ── Mobile adjustments ─────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .pdp-info__name  { font-size: 1.125rem; }
-  .pdp-info__price { font-size: 1.375rem; }
   .pdp-purchase    { position: static; }
   .pdp-gallery     { position: static; }
   .pdp-skeleton    { grid-template-columns: 1fr; }
 }
 
-/* ── Wishlist heart button ───────────────────────────────────── */
-.pdp-wish-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px 8px 12px;
-  border: 1.5px solid var(--border-color);
-  border-radius: 9999px;
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: border-color 0.18s, color 0.18s, background 0.18s, transform 0.12s;
-}
-.pdp-wish-btn svg { width: 20px; height: 20px; color: inherit; transition: transform 0.2s; }
-.pdp-wish-btn:hover:not(:disabled) {
-  border-color: #ef4444; color: #ef4444; transform: translateY(-1px);
-}
-.pdp-wish-btn:hover:not(:disabled) svg { transform: scale(1.15); }
-.pdp-wish-btn--active {
-  border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.08);
-}
-.pdp-wish-btn:disabled { opacity: 0.55; cursor: not-allowed; }

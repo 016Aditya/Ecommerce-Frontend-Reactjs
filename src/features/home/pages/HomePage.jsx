@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import HeroBanner from '@/components/home/HeroBanner';
+import MobileHeroBanner from '@/components/home/MobileHeroBanner';
 import DealSection from '@/components/home/DealSection';
 import MobileCategories from '@/components/home/MobileCategories';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
@@ -24,7 +25,8 @@ function HomePage() {
   return (
     <main className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <SEO {...seoProps} />
-      <HeroBanner />
+      <div className="md:hidden"><MobileHeroBanner /></div>
+      <div className="hidden md:block" style={{ marginBottom: '10px' }}><HeroBanner /></div>
       <div className="hidden md:block"><DealSection /></div>
       <MobileCategories />
       <FeaturedProducts />

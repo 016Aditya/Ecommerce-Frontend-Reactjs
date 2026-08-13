@@ -54,7 +54,7 @@ const ShippingInfo = ({ address }) => {
 
       {/* Row 2: short preview — line1, city */}
       {previewLine && (
-        <p style={{ fontSize: "14px", lineHeight: 1.4, color: "var(--text-secondary)", margin: 0 }}>
+        <p style={{ fontSize: "14px", lineHeight: "17.6px", color: "var(--text-secondary)", margin: 0 }}>
           {previewLine}
         </p>
       )}
@@ -80,7 +80,7 @@ const ShippingInfo = ({ address }) => {
 
       {/* Expanded full address */}
       {expanded && (
-        <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "2px", fontSize: "14px", color: "var(--text-secondary)" }}>
+        <div style={{ marginTop: "8px", display: "flex", flexDirection: "column", gap: "2px", fontSize: "14px", lineHeight: "19px", color: "var(--text-secondary)" }}>
           {line1 && <p style={{ margin: 0 }}>{line1}</p>}
           {line2 && <p style={{ margin: 0 }}>{line2}</p>}
           {cityStateLine && <p style={{ margin: 0 }}>{cityStateLine}</p>}

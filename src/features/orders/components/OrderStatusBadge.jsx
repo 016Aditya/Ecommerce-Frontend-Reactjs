@@ -54,6 +54,14 @@ const RETURN_GREEN_STATUSES = new Set([
   "RETURNED",
 ]);
 
+// Soft, theme-aware tinted chips (uses the semantic success/info/error
+// tokens so the badge reads correctly in both light and dark mode).
+const TINTED_CLASS = {
+  DELIVERED: "order-status-badge--delivered",
+  SHIPPED:   "order-status-badge--shipped",
+  CANCELLED: "order-status-badge--cancelled",
+};
+
 const OrderStatusBadge = ({ status }) => {
   const key = (status ?? "").toUpperCase();
   const s   = STATUS_MAP[key] ?? {
@@ -62,17 +70,21 @@ const OrderStatusBadge = ({ status }) => {
     bg:    "var(--bg-secondary, #f3f4f6)",
   };
 
-  // Dark-mode modifier class for the two new groups
+  const tintedClass = TINTED_CLASS[key];
+
+  // Dark-mode modifier class for the two return groups
   const darkClass = RETURN_AMBER_STATUSES.has(key)
     ? "order-status-badge--return-amber"
     : RETURN_GREEN_STATUSES.has(key)
     ? "order-status-badge--return-green"
     : "";
 
+  const modifierClass = tintedClass || darkClass;
+
   return (
     <span
-      className={["order-status-badge", darkClass].filter(Boolean).join(" ")}
-      style={{ color: s.color, background: s.bg }}
+      className={["order-status-badge", modifierClass].filter(Boolean).join(" ")}
+      style={tintedClass ? undefined : { color: s.color, background: s.bg }}
     >
       {s.label}
     </span>

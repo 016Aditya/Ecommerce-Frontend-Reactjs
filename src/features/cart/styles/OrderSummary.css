@@ -1,0 +1,41 @@
+/* ============================================================
+   OrderSummary.css — button hover/focus polish.
+   Hover effects gated to hover-capable pointers so mobile taps
+   never get stuck in a "hovered" state.
+   ============================================================ */
+
+.cart-checkout-btn {
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: background-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cart-checkout-btn:hover:not(:disabled) {
+    filter: brightness(1.06);
+    box-shadow: 0 8px 20px rgba(255, 170, 0, 0.22);
+    transform: translateY(-1px);
+  }
+}
+.cart-checkout-btn:active:not(:disabled) {
+  transform: scale(0.98);
+  box-shadow: 0 4px 10px rgba(255, 170, 0, 0.14);
+}
+.cart-checkout-btn:focus-visible {
+  outline: 2px solid rgba(255, 170, 0, 0.65);
+  outline-offset: 2px;
+}
+
+.cart-clear-btn {
+  transition: all 180ms ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .cart-clear-btn:hover:not(:disabled) {
+    border-color: color-mix(in srgb, #d1d5db 90%, white 10%);
+    background-color: rgba(255, 255, 255, 0.03);
+  }
+}

@@ -62,7 +62,7 @@ const SimilarProducts = ({ category, currentProductId }) => {
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="sim-card sim-card--skeleton">
-                <div className="sim-card__img skeleton" style={{ height: 160 }} />
+                <div className="sim-card__img skeleton" style={{ height: 76 }} />
                 <div className="sim-card__body">
                   <div className="skeleton" style={{ height: 13, width: '85%', borderRadius: 4, marginBottom: 6 }} />
                   <div className="skeleton" style={{ height: 13, width: '50%', borderRadius: 4, marginBottom: 6 }} />

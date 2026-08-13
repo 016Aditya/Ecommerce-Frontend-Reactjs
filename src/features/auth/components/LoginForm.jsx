@@ -35,8 +35,19 @@ function LoginForm() {
   const isCaptchaBlocked = requiresCaptcha && !captchaToken;
   const isSubmitBlocked = isLocked || isRetryBlocked || isCaptchaBlocked;
 
-  // If PrivateRoute redirected here, it stored the intended page in state.from
-  const from = location.state?.from?.pathname || PATHS.HOME;
+  // If PrivateRoute redirected here, state.from is a full location object
+  // ({ pathname, search, hash, ... }). If a page-level guard (e.g. Cart's
+  // checkout button) redirected here, state.from may instead be a plain
+  // path string. Support both shapes and fall back to Home otherwise.
+  const resolveFrom = (redirectFrom) => {
+    if (!redirectFrom) return PATHS.HOME;
+    if (typeof redirectFrom === "string") return redirectFrom;
+    if (typeof redirectFrom.pathname === "string") {
+      return `${redirectFrom.pathname}${redirectFrom.search || ""}${redirectFrom.hash || ""}`;
+    }
+    return PATHS.HOME;
+  };
+  const from = resolveFrom(location.state?.from);
 
   const regState = location.state;
   const [showBanner, setShowBanner] = useState(() => !!(regState?.registered));

@@ -7,6 +7,8 @@ import { queryKeys }          from '@/lib/queryKeys';
 // ── helpers ──────────────────────────────────────────────────────────────────
 const empty = (v) => !v || String(v).trim() === '';
 
+const PINCODE_API_URL = 'https://api.postalpincode.in/pincode';
+
 const buildInitial = (profile, user) => ({
   firstName:    profile?.firstName    ?? user?.firstName    ?? '',
   lastName:     profile?.lastName     ?? user?.lastName     ?? '',
@@ -28,11 +30,55 @@ const ProfileForm = ({ profile, user, onSuccess, onError }) => {
   const [fields, setFields]   = useState(() => buildInitial(profile, user));
   const [loading, setLoading] = useState(false);
 
+  // PIN code → city/state auto-fill lookup
+  const [pinLoading, setPinLoading] = useState(false);
+  const [pinError,   setPinError]   = useState('');
+
   useEffect(() => {
     setFields(buildInitial(profile, user));
+    setPinError('');
   }, [profile, user]);
 
   const set = (key) => (e) => setFields((prev) => ({ ...prev, [key]: e.target.value }));
+
+  const fetchPincodeDetails = async (pin) => {
+    setPinLoading(true);
+    setPinError('');
+    try {
+      const res  = await fetch(`${PINCODE_API_URL}/${pin}`);
+      const data = await res.json();
+      const result   = data?.[0];
+      const postOffice = result?.PostOffice?.[0];
+
+      if (result?.Status === 'Success' && postOffice) {
+        // Guard against a stale response if the user has since changed the PIN.
+        setFields((prev) => (prev.zipCode !== pin ? prev : {
+          ...prev,
+          city:    postOffice.District,
+          state:   postOffice.State,
+          country: 'India',
+        }));
+      } else {
+        setFields((prev) => (prev.zipCode !== pin ? prev : { ...prev, city: '', state: '' }));
+        setPinError('Invalid Indian PIN code');
+      }
+    } catch {
+      setFields((prev) => (prev.zipCode !== pin ? prev : { ...prev, city: '', state: '' }));
+      setPinError('Invalid Indian PIN code');
+    } finally {
+      setPinLoading(false);
+    }
+  };
+
+  const handlePinChange = (e) => {
+    const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 6);
+    setFields((prev) => ({ ...prev, zipCode: digitsOnly }));
+    setPinError('');
+
+    if (digitsOnly.length === 6) {
+      fetchPincodeDetails(digitsOnly);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -188,6 +234,28 @@ const ProfileForm = ({ profile, user, onSuccess, onError }) => {
             />
           </div>
 
+          {/* PIN Code */}
+          <div className="profile-field">
+            <label htmlFor="pf-zipCode" className="profile-field__label">PIN Code</label>
+            <input
+              id="pf-zipCode"
+              className="profile-field__input"
+              type="text"
+              inputMode="numeric"
+              value={fields.zipCode}
+              onChange={handlePinChange}
+              placeholder="700001"
+              maxLength={6}
+              autoComplete="postal-code"
+            />
+            {pinLoading && (
+              <p className="profile-field__hint">Fetching city and state…</p>
+            )}
+            {!pinLoading && pinError && (
+              <p className="profile-field__error">{pinError}</p>
+            )}
+          </div>
+
           {/* City */}
           <div className="profile-field">
             <label htmlFor="pf-city" className="profile-field__label">City</label>
@@ -216,31 +284,15 @@ const ProfileForm = ({ profile, user, onSuccess, onError }) => {
             />
           </div>
 
-          {/* ZIP Code */}
-          <div className="profile-field">
-            <label htmlFor="pf-zipCode" className="profile-field__label">PIN Code</label>
-            <input
-              id="pf-zipCode"
-              className="profile-field__input"
-              type="text"
-              value={fields.zipCode}
-              onChange={set('zipCode')}
-              placeholder="700001"
-              maxLength={6}
-              autoComplete="postal-code"
-            />
-          </div>
-
-          {/* Country */}
+          {/* Country — read-only, always India */}
           <div className="profile-field">
             <label htmlFor="pf-country" className="profile-field__label">Country</label>
             <input
               id="pf-country"
-              className="profile-field__input"
+              className="profile-field__input profile-field__input--readonly"
               type="text"
-              value={fields.country}
-              onChange={set('country')}
-              placeholder="India"
+              value={fields.country || 'India'}
+              readOnly
               autoComplete="country-name"
             />
           </div>

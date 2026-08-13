@@ -41,7 +41,7 @@
 .review-card__top {
   display: flex;
   align-items: flex-start;
-  gap: 14px;
+  gap: 16px;
 }
 
 /* ==========================================================
@@ -75,7 +75,7 @@
   color: var(--text-primary);
   font-size: 1rem;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 /* ==========================================================
@@ -85,7 +85,7 @@
 .review-card__rating-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .review-stars-display {
@@ -424,5 +424,11 @@
     width: 100%;
     text-align: center;
     justify-content: center;
+  }
+
+  .review-form__submit {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
   }
 }

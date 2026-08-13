@@ -130,7 +130,7 @@ function CustomerServicePage() {
       <SEO {...seoProps} />
       {/* ── Hero Banner ─────────────────────────────────────────────────────── */}
       <div
-        className="py-12 text-center"
+        className="py-8 text-center"
         style={{ backgroundColor: "var(--navbar-bg)" }}
       >
         <div className="mb-3 inline-flex flex-col items-center">
@@ -142,46 +142,48 @@ function CustomerServicePage() {
         <h1 className="mt-4 text-2xl font-bold" style={{ color: "white" }}>
           Customer Service
         </h1>
-        <p className="mt-2 text-sm max-w-md mx-auto" style={{ color: "var(--footer-text)" }}>
-          We're here to help. Reach out via any channel below and we'll get back to you as soon as possible.
+        <p className="mt-2 text-sm max-w-md mx-auto" style={{ fontSize: "14px", color: "var(--footer-text)" }}>
+          We're here to help with orders, returns, payments, and account support.
         </p>
       </div>
 
-      <div className="container-app py-10 space-y-8">
+      <div className="container-app pt-10 pb-7 space-y-5">
 
         {/* ── About ShopApp ───────────────────────────────────────────── */}
         <section className="rounded-xl p-6 md:p-8" style={cardStyle}>
-          <h2 className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>
+          <h2 className="text-lg font-bold mb-5" style={{ color: "var(--text-primary)" }}>
             About ShopApp.in
           </h2>
 
-          {/* Paragraph 1 */}
-          <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            <strong style={{ color: "var(--text-primary)" }}>ShopApp.in</strong> is a modern full-stack eCommerce
-            platform built to deliver a fast, secure, and seamless online shopping experience. Customers can browse
-            products by category and subcategory, search for items, manage wishlists and carts, place orders
-            securely, and track their purchases through an intuitive interface.
-          </p>
+          <div style={{ maxWidth: "940px" }}>
+            {/* Paragraph 1 */}
+            <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              <strong style={{ color: "var(--text-primary)" }}>ShopApp.in</strong> is a modern full-stack eCommerce
+              platform built to deliver a fast, secure, and seamless online shopping experience. Customers can browse
+              products by category and subcategory, search for items, manage wishlists and carts, place orders
+              securely, and track their purchases through an intuitive interface.
+            </p>
 
-          {/* Paragraph 2 */}
-          <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            The platform is powered by a{" "}
-            <span className="font-medium" style={{ color: "var(--accent)" }}>React.js</span> frontend and a{" "}
-            <span className="font-medium" style={{ color: "var(--accent)" }}>Spring Boot + MongoDB</span> backend,
-            featuring{" "}
-            <span className="font-medium" style={{ color: "var(--accent)" }}>JWT Authentication</span>,{" "}
-            <span className="font-medium" style={{ color: "var(--accent)" }}>Google OAuth2 Login</span>,{" "}
-            RESTful APIs, secure user authentication, responsive design, and optimized performance. Every component
-            has been designed with scalability, maintainability, and real-world production practices in mind.
-          </p>
+            {/* Paragraph 2 */}
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              The platform is powered by a{" "}
+              <span className="font-medium" style={{ color: "var(--accent)" }}>React.js</span> frontend and a{" "}
+              <span className="font-medium" style={{ color: "var(--accent)" }}>Spring Boot + MongoDB</span> backend,
+              featuring{" "}
+              <span className="font-medium" style={{ color: "var(--accent)" }}>JWT Authentication</span>,{" "}
+              <span className="font-medium" style={{ color: "var(--accent)" }}>Google OAuth2 Login</span>,{" "}
+              RESTful APIs, secure user authentication, responsive design, and optimized performance. Every component
+              has been designed with scalability, maintainability, and real-world production practices in mind.
+            </p>
 
-          {/* Paragraph 3 */}
-          <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-            ShopApp.in was designed and developed by{" "}
-            <strong style={{ color: "var(--text-primary)" }}>Aditya Singh</strong> as a production-grade full-stack
-            project showcasing modern web development, clean architecture, secure backend development, and responsive
-            user experience.
-          </p>
+            {/* Paragraph 3 */}
+            <p className="mt-3 text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+              ShopApp.in was designed and developed by{" "}
+              <strong style={{ color: "var(--text-primary)" }}>Aditya Singh</strong> as a production-grade full-stack
+              project showcasing modern web development, clean architecture, secure backend development, and responsive
+              user experience.
+            </p>
+          </div>
 
           {/* ── Technologies Used ──────────────────────────────────────── */}
           <div
@@ -246,39 +248,44 @@ function CustomerServicePage() {
 
         {/* ── Contact Us ────────────────────────────────────────────────── */}
         <section className="rounded-xl p-6 md:p-8" style={cardStyle}>
-          <h2 className="text-lg font-bold mb-1" style={{ color: "var(--text-primary)" }}>
+          <h2 className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>
             Contact Us
           </h2>
-          <p className="text-sm mb-6" style={{ color: "var(--text-secondary)" }}>
+          <p className="text-sm mb-5" style={{ color: "var(--text-secondary)" }}>
             Reach out on any of the platforms below.
           </p>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
             {CONTACT_CARDS.map((card) => (
               <a
                 key={card.id}
                 href={card.href}
                 target={card.external ? "_blank" : undefined}
                 rel={card.external ? "noopener noreferrer" : undefined}
-                className="group flex items-center gap-4 rounded-lg border p-4 transition-all duration-200"
+                className="group flex items-center gap-4 border p-4 transition-all duration-180"
                 style={{
+                  borderRadius: "18px",
                   backgroundColor: "var(--bg-secondary)",
                   borderColor: "var(--border-color)",
+                  cursor: "pointer",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "var(--accent)";
                   e.currentTarget.style.backgroundColor = "var(--card-bg-elevated)";
                   e.currentTarget.style.boxShadow = "var(--shadow-md)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "var(--border-color)";
                   e.currentTarget.style.backgroundColor = "var(--bg-secondary)";
                   e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
                 <span
-                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full transition-colors duration-200"
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-colors duration-180"
                   style={{
-                    backgroundColor: "var(--navbar-bg)",
+                    backgroundColor: "color-mix(in srgb, var(--accent) 9%, transparent)",
+                    boxShadow: "inset 0 1px 2px rgba(0,0,0,0.12)",
                     color: "var(--accent)",
                   }}
                 >
@@ -299,10 +306,10 @@ function CustomerServicePage() {
 
         {/* ── Source Code ─────────────────────────────────────────────────── */}
         <section className="rounded-xl p-6 md:p-8" style={cardStyle}>
-          <h2 className="text-lg font-bold mb-4" style={{ color: "var(--text-primary)" }}>
+          <h2 className="text-lg font-bold mb-6" style={{ color: "var(--text-primary)" }}>
             Source Code
           </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             {[
               {
                 label: "Frontend",
@@ -320,25 +327,33 @@ function CustomerServicePage() {
                 href={repo.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 rounded-lg border p-4 transition-all duration-200"
+                className="flex items-center gap-3 border p-4 transition-all duration-180"
                 style={{
+                  borderRadius: "18px",
                   backgroundColor: "var(--bg-secondary)",
                   borderColor: "var(--border-color)",
+                  cursor: "pointer",
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.borderColor = "var(--accent)";
                   e.currentTarget.style.backgroundColor = "var(--card-bg-elevated)";
                   e.currentTarget.style.boxShadow = "var(--shadow-md)";
+                  e.currentTarget.style.transform = "translateY(-2px)";
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.borderColor = "var(--border-color)";
                   e.currentTarget.style.backgroundColor = "var(--bg-secondary)";
                   e.currentTarget.style.boxShadow = "none";
+                  e.currentTarget.style.transform = "translateY(0)";
                 }}
               >
                 <span
-                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full"
-                  style={{ backgroundColor: "var(--navbar-bg)", color: "var(--accent)" }}
+                  className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-colors duration-180"
+                  style={{
+                    backgroundColor: "color-mix(in srgb, var(--accent) 9%, transparent)",
+                    boxShadow: "inset 0 1px 2px rgba(0,0,0,0.12)",
+                    color: "var(--accent)",
+                  }}
                 >
                   <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 0C5.37 0 0 5.373 0 12c0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23a11.52 11.52 0 0 1 3-.405c1.02.005 2.045.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.298 24 12c0-6.627-5.373-12-12-12z" />
@@ -359,17 +374,18 @@ function CustomerServicePage() {
 
         {/* ── FAQ ──────────────────────────────────────────────────────────────── */}
         <section className="rounded-xl p-6 md:p-8" style={cardStyle}>
-          <h2 className="text-lg font-bold mb-6" style={{ color: "var(--text-primary)" }}>
+          <h2 className="text-lg font-bold mb-3" style={{ color: "var(--text-primary)" }}>
             Frequently Asked Questions
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-5">
             {FAQ.map((item, i) => (
               <div
                 key={i}
-                className="rounded-lg p-4"
+                className="rounded-lg px-4"
                 style={{
                   backgroundColor: "var(--bg-secondary)",
-                  border: "1px solid var(--border-subtle)",
+                  border: "1px solid rgba(255,255,255,0.06)",
+                  paddingBlock: "8px",
                 }}
               >
                 <p className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
@@ -384,10 +400,13 @@ function CustomerServicePage() {
         </section>
 
         {/* ── Back to shopping ────────────────────────────────────────────── */}
-        <div className="flex justify-center pb-4">
+        <div
+          className="flex justify-center pb-4 mt-2 pt-6"
+          style={{ borderTop: "1px solid rgba(255,255,255,0.05)" }}
+        >
           <Link
             to={PATHS.HOME}
-            className="inline-flex items-center gap-2 rounded-lg px-6 py-2.5 text-sm font-bold transition-opacity hover:opacity-90"
+            className="inline-flex items-center gap-2 rounded-lg px-8 py-2.5 text-sm font-bold transition-opacity hover:opacity-90"
             style={{
               backgroundColor: "var(--button-primary)",
               color: "var(--button-primary-text)",

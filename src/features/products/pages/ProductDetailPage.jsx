@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useProductDetailQuery } from "@/hooks/useQueryProducts";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -57,6 +57,23 @@ const ProductDetailPage = () => {
   // useToggleWishlist handles both guest and authenticated paths.
   const { isWishlisted, toggle: handleWishlistToggle, busy: wishBusy } =
     useToggleWishlist(id);
+
+  // Same pop + burst animation as the Product List heart — plays whenever
+  // the item transitions from not-wishlisted to wishlisted.
+  const [wishPopping, setWishPopping] = useState(false);
+  const [wishBurst,   setWishBurst]   = useState(false);
+  const prevWishlistedRef = useRef(isWishlisted);
+
+  useEffect(() => {
+    if (isWishlisted && !prevWishlistedRef.current) {
+      setWishPopping(true);
+      setWishBurst(true);
+      const t1 = setTimeout(() => setWishPopping(false), 280);
+      const t2 = setTimeout(() => setWishBurst(false),   450);
+      return () => { clearTimeout(t1); clearTimeout(t2); };
+    }
+    prevWishlistedRef.current = isWishlisted;
+  }, [isWishlisted]);
 
   const [addingToCart,    setAddingToCart]    = useState(false);
   const [removingFromCart, setRemovingFromCart] = useState(false);
@@ -156,7 +173,16 @@ const ProductDetailPage = () => {
         disabled={wishBusy}
         aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
       >
-        <svg viewBox="0 0 24 24" fill={isWishlisted ? 'currentColor' : 'none'}
+        {wishBurst && (
+          <span className="pdp-wish-btn__burst" aria-hidden="true">
+            {[...Array(8)].map((_, i) => (
+              <span key={i} className="pdp-wish-btn__ray" style={{ '--i': i }} />
+            ))}
+          </span>
+        )}
+        <svg
+          className={wishPopping ? 'pdp-wish-btn__heart--pop' : ''}
+          viewBox="0 0 24 24" fill={isWishlisted ? 'currentColor' : 'none'}
           stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
         </svg>
@@ -193,12 +219,12 @@ const ProductDetailPage = () => {
       </div>
 
       {errorToast && (
-        <div role="alert" style={{
+        <div role="alert" className="pdp-inline-toast" style={{
           position: 'fixed',
           bottom: 'calc(28px + env(safe-area-inset-bottom, 0px))',
           left: '50%', transform: 'translateX(-50%)',
           zIndex: 99999, background: '#dc2626', color: '#fff',
-          borderRadius: '9999px', padding: '13px 24px',
+          borderRadius: '14px', padding: '11px 20px',
           fontWeight: 600, fontSize: '0.9375rem',
           boxShadow: '0 4px 16px rgba(220,38,38,0.4)',
           whiteSpace: 'nowrap', pointerEvents: 'none',

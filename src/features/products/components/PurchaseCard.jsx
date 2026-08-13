@@ -49,16 +49,27 @@ const PurchaseCard = ({
 
   return (
     <div
-      className="purchase-card rounded-lg p-4"
+      className="purchase-card rounded-lg px-4"
       style={{
-        border: "1px solid var(--border-color)",
+        border: "1px solid color-mix(in srgb, var(--border-color) 94%, white 6%)",
         background: "var(--card-bg)",
+        boxShadow: "var(--shadow-sm)",
         position: "sticky",
         top: 80,
+        padding: "16px",
+        transition: "border-color 200ms ease, box-shadow 200ms ease",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
+        e.currentTarget.style.boxShadow = "var(--shadow-md)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "color-mix(in srgb, var(--border-color) 94%, white 6%)";
+        e.currentTarget.style.boxShadow = "var(--shadow-sm)";
       }}
     >
-      <div className="mb-3">
-        <span className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>
+      <div className="mb-1">
+        <span className="font-bold" style={{ fontSize: "30px", color: "var(--text-primary)" }}>
           {formatCurrencyTrimmed(Number(product.price))}
         </span>
 
@@ -76,7 +87,7 @@ const PurchaseCard = ({
         )}
       </div>
 
-      <p className="mb-1 text-sm text-green-500 font-medium">Free Delivery</p>
+      <p className="mb-1 font-semibold text-green-500" style={{ fontSize: "14px" }}>Free Delivery</p>
       {outOfStock ? (
         <p className="mb-3 text-sm font-semibold text-red-500">Out of Stock</p>
       ) : (
@@ -86,11 +97,13 @@ const PurchaseCard = ({
       )}
 
       <button
-        className="mb-2 w-full rounded py-2.5 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-70 active:scale-95"
+        className="mb-2 flex w-full min-h-11 items-center justify-center rounded-xl text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-70 active:scale-[0.985]"
         style={{
           ...cartBtnStyle(),
-          transition: "background 250ms ease, color 250ms ease",
+          transition: "all 180ms ease",
         }}
+        onMouseEnter={(e) => { if (!cartBtnDisabled) e.currentTarget.style.filter = "brightness(1.04)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.filter = "brightness(1)"; }}
         onClick={isInCart ? onRemoveFromCart : onAddToCart}
         disabled={cartBtnDisabled}
         aria-label={isInCart ? "Remove from cart" : "Add to cart"}
@@ -99,11 +112,14 @@ const PurchaseCard = ({
       </button>
 
       <button
-        className="w-full rounded py-2.5 text-sm font-bold transition active:scale-95 disabled:cursor-not-allowed disabled:opacity-70"
+        className="flex w-full min-h-11 items-center justify-center rounded-xl text-sm font-bold active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-70"
         style={{
           background: outOfStock ? "var(--bg-tertiary)" : "#fb8c00",
           color: outOfStock ? "var(--text-tertiary)" : "#fff",
+          transition: "all 180ms ease",
         }}
+        onMouseEnter={(e) => { if (!outOfStock && !addingToCart && !removingFromCart && !buyingNow) e.currentTarget.style.filter = "brightness(1.04)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.filter = "brightness(1)"; }}
         onClick={onBuyNow}
         disabled={outOfStock || addingToCart || removingFromCart || buyingNow}
         aria-label="Buy now"
@@ -113,31 +129,45 @@ const PurchaseCard = ({
         ) : outOfStock ? "UNAVAILABLE" : "BUY NOW"}
       </button>
 
-      {/* ── Secure Checkout ── redesigned: orange lock icon + two-line text */}
+      {/* ── Secure Checkout ── minimal trust row, integrated with the card */}
       <div
-        className="mt-3 flex items-center gap-3"
+        className="flex items-center gap-3"
         style={{
-          borderTop: "1px solid var(--border-color)",
-          paddingTop: "10px",
+          paddingTop: "18px",
+          borderTop: "1px solid rgba(255,255,255,0.06)",
         }}
       >
-        {/* Orange filled lock icon */}
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="22"
-          height="22"
-          viewBox="0 0 24 24"
-          fill="#fb8c00"
+        {/* Orange lock icon — small subtle container, no glow/shadow */}
+        <span
           aria-hidden="true"
-          style={{ flexShrink: 0 }}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "40px",
+            height: "40px",
+            borderRadius: "10px",
+            flexShrink: 0,
+            background: "color-mix(in srgb, var(--card-bg) 88%, white 12%)",
+            border: "1px solid rgba(255,255,255,0.05)",
+          }}
         >
-          <path d="M12 1C9.24 1 7 3.24 7 6v2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
-        </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="#fb8c00"
+            aria-hidden="true"
+          >
+            <path d="M12 1C9.24 1 7 3.24 7 6v2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2h-2V6c0-2.76-2.24-5-5-5zm0 2c1.66 0 3 1.34 3 3v2H9V6c0-1.66 1.34-3 3-3zm0 9a2 2 0 1 1 0 4 2 2 0 0 1 0-4z" />
+          </svg>
+        </span>
 
         {/* Two-line text block */}
-        <div style={{ lineHeight: 1.35 }}>
+        <div style={{ lineHeight: 1.35, minWidth: 0 }}>
           <p
-            className="text-sm font-semibold"
+            className="text-sm font-bold"
             style={{ color: "var(--text-primary)", marginBottom: "2px" }}
           >
             Secure checkout

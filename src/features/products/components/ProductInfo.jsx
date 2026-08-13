@@ -84,6 +84,12 @@ const ProductRating = ({ averageRating, reviewCount, onScrollToReviews }) => {
   );
 };
 
+const deliveryEstimate = () => {
+  const date = new Date();
+  date.setDate(date.getDate() + 5);
+  return date.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
+};
+
 const ProductInfo = ({ product, reviewsSectionRef }) => {
   const discount =
     product.originalPrice && product.originalPrice > product.price
@@ -156,6 +162,9 @@ const ProductInfo = ({ product, reviewsSectionRef }) => {
       <p className={`pdp-info__stock ${product.inStock === false ? "pdp-info__stock--out" : ""}`}>
         {product.inStock === false ? "Currently unavailable" : "In Stock"}
       </p>
+      {product.inStock !== false && (
+        <p className="pdp-info__delivery-estimate">Get it by {deliveryEstimate()}</p>
+      )}
     </div>
   );
 };

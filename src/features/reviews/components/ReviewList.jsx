@@ -47,7 +47,7 @@ const ReviewList = ({ productId, currentUser }) => {
 
   return (
     <section className="review-section" aria-label="Customer reviews">
-      <h2 className="review-section__title" style={{ color: "#ffffff", marginBottom: 16 }}>
+      <h2 className="review-section__title">
         Customer Reviews
       </h2>
 

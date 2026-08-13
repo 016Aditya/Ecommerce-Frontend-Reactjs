@@ -84,9 +84,18 @@ const ProductsPage = () => {
   }, [loading, products.length]);
 
   const handleClearSearch = useCallback(() => {
-    if (!activeSearch) return;
-    setSearch('');
-  }, [activeSearch, setSearch]);
+    if (activeSearch) {
+      setSearch('');
+      return;
+    }
+    if (activeSub) {
+      setSearchParams(activeCat !== 'All' ? { category: activeCat } : {});
+      return;
+    }
+    if (activeCat !== 'All') {
+      setSearchParams({});
+    }
+  }, [activeSearch, activeSub, activeCat, setSearch, setSearchParams]);
 
   const handleCategorySelect = useCallback(
     (category) => {
@@ -109,14 +118,16 @@ const ProductsPage = () => {
   return (
     <section className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <SEO {...seoProps} />
-      <div className="container-app py-6">
+      <div className="py-6" style={{ width: '100%', maxWidth: 'calc(100% - 48px)', marginInline: 'auto' }}>
         {(activeCat !== 'All' || activeSearch) && (
           <div
-            className="mb-3 flex items-center gap-2 rounded-sm px-4 py-2 text-sm shadow-sm"
+            className="mb-3 flex items-center gap-2 rounded-sm px-4 shadow-sm"
             style={{
               backgroundColor: 'var(--card-bg-elevated)',
               border: '1px solid var(--border-color)',
               color: 'var(--text-primary)',
+              fontSize: '15px',
+              paddingBlock: '12px',
             }}
           >
             {activeSearch ? (
@@ -125,14 +136,17 @@ const ProductsPage = () => {
               </>
             ) : (
               <>
-                <span className="font-semibold">Category:</span> {activeCat}
-                {activeSub ? ` > ${activeSub}` : ''}
+                <span style={{ fontWeight: 700 }}>Category:</span>{' '}
+                <span style={{ fontWeight: 600 }}>
+                  {activeCat}
+                  {activeSub ? ` > ${activeSub}` : ''}
+                </span>
               </>
             )}
             <button
               onClick={handleClearSearch}
-              className="ml-auto text-xs font-medium hover:underline"
-              style={{ color: 'var(--info-text)' }}
+              className="ml-auto hover:underline"
+              style={{ color: 'var(--info-text)', fontSize: '13px', fontWeight: 600 }}
             >
               Clear x
             </button>
@@ -140,10 +154,11 @@ const ProductsPage = () => {
         )}
 
         <div
-          className="mb-4 flex flex-col gap-3 rounded-sm p-4 shadow-sm"
+          className="mb-4 flex flex-col gap-3 rounded-sm px-4 shadow-sm"
           style={{
             backgroundColor: 'var(--card-bg-elevated)',
             border: '1px solid var(--border-color)',
+            paddingBlock: '15px',
           }}
         >
           <ProductFilter
@@ -156,7 +171,7 @@ const ProductsPage = () => {
 
         {/* Skeleton grid */}
         {loading && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
               <ProductCardSkeleton key={i} />
             ))}
@@ -178,11 +193,13 @@ const ProductsPage = () => {
 
         {!loading && !error && (
           <div className="sk-loaded">
-            <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <p className="mb-3 text-sm" style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>
               {products.length} product{products.length !== 1 ? 's' : ''} found
             </p>
-            
-            <ProductGrid products={products} />
+
+            <div style={{ paddingBottom: '24px' }}>
+              <ProductGrid products={products} />
+            </div>
             
             {/* 2. NEW CLEAN PAGINATION COMPONENT */}
             {isSearchMode && totalPages > 1 && (

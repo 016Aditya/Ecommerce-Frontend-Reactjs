@@ -119,6 +119,18 @@
   .hero-banner__emoji {
     display: none !important;
   }
+
+  /* Actual mobile banner (MobileHeroBanner.jsx uses .mobile-hero-banner,
+     not .hero-banner above — that class only renders on desktop). */
+  .mobile-hero-banner {
+    -webkit-tap-highlight-color: transparent;
+  }
+  .mobile-hero-banner > div:first-child:active {
+    filter: brightness(0.97);
+  }
+  .mobile-hero-banner button {
+    transition: width 200ms ease, background-color 200ms ease;
+  }
 }
 
 
@@ -129,6 +141,17 @@
     max-width: 100%;
     overflow: hidden;
     box-sizing: border-box;
+    padding-top: 24px !important;
+  }
+
+  .featured-section__subtitle {
+    max-width: 220px;
+  }
+
+  /* Sizing (height/radius/font/padding) now lives on the base button
+     classes in ProductCard.jsx — this just adds mobile tap feedback. */
+  .product-card__btn:active:not(:disabled) {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
   }
 
   .featured-shell {
@@ -189,7 +212,7 @@
   .mobile-categories__page {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px 6px;
+    gap: 18px 6px;
     flex: 0 0 100%;
     scroll-snap-align: start;
     scroll-snap-stop: always;
@@ -204,7 +227,7 @@
     justify-content: flex-start;
     gap: 6px;
     color: var(--text-primary);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 600;
     line-height: 1.2;
     text-align: center;
@@ -214,14 +237,19 @@
 
   .mobile-categories__icon {
     display: grid;
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     place-items: center;
     border: 1px solid var(--border-color);
     border-radius: 50%;
-    background: var(--card-bg);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+    background: linear-gradient(145deg, color-mix(in srgb, var(--card-bg) 92%, white 8%), var(--card-bg));
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     font-size: 24px;
+    transition: transform 180ms ease;
+  }
+
+  .mobile-categories__item:active .mobile-categories__icon {
+    transform: scale(0.94);
   }
 
   .mobile-categories__name { overflow-wrap: anywhere; }
@@ -238,57 +266,97 @@
     left: 0;
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
-    min-height: calc(64px + env(safe-area-inset-bottom));
+    min-height: calc(62px + env(safe-area-inset-bottom));
     padding: 7px 6px calc(7px + env(safe-area-inset-bottom));
     border-top: 1px solid var(--border-color);
     background: var(--card-bg);
     box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.22);
   }
 
-  .bottom-nav__item { display: flex; min-width: 0; min-height: 44px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 10px; color: var(--text-secondary); font-size: 10px; font-weight: 650; line-height: 1; text-decoration: none; -webkit-tap-highlight-color: transparent; }
-  .bottom-nav__icon-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
-  .bottom-nav__item svg { width: 21px; height: 21px; }
-  .bottom-nav__badge { position: absolute; top: -8px; right: -12px; display: flex; min-width: 18px; height: 18px; align-items: center; justify-content: center; padding: 0 3px; border-radius: 9999px; background: var(--accent, #ff9f00); color: #0f1111; font-size: 10px; font-weight: 800; line-height: 1; }
+  .bottom-nav__item { position: relative; display: flex; min-width: 0; min-height: 44px; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border-radius: 10px; color: var(--text-secondary); font-size: 10px; font-weight: 650; line-height: 1; text-decoration: none; -webkit-tap-highlight-color: transparent; transition: color 200ms ease, background-color 200ms ease; }
+  .bottom-nav__item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 22px;
+    height: 2px;
+    border-radius: 0 0 999px 999px;
+    background: var(--accent, #ff9f00);
+    opacity: 0;
+    transform: translateX(-50%) scaleX(0.4);
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .bottom-nav__icon-wrap { position: relative; display: flex; align-items: center; justify-content: center; transition: transform 200ms ease; }
+  .bottom-nav__item svg { width: 21px; height: 21px; position: relative; z-index: 1; }
+  .bottom-nav__badge { position: absolute; top: -8px; right: -12px; display: flex; min-width: 18px; height: 18px; align-items: center; justify-content: center; padding: 0 3px; border-radius: 9999px; background: var(--accent, #ff9f00); color: #0f1111; font-size: 10px; font-weight: 800; line-height: 1; z-index: 1; }
   .bottom-nav__item--active { color: var(--accent, #ff9f00); background: color-mix(in srgb, var(--accent, #ff9f00) 12%, transparent); }
+  .bottom-nav__item--active::before { opacity: 1; transform: translateX(-50%) scaleX(1); }
+  .bottom-nav__item--active .bottom-nav__icon-wrap { transform: scale(1.08); }
+  .bottom-nav__item--active .bottom-nav__icon-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -7px;
+    z-index: 0;
+    border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--accent, #ff9f00) 35%, transparent) 0%, transparent 72%);
+  }
+  .bottom-nav__item:active .bottom-nav__icon-wrap { transform: scale(0.95); }
   .bottom-nav__item:focus-visible { outline: 2px solid var(--accent, #ff9f00); outline-offset: -2px; }
   .mobile-page-content { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
 
   .mobile-category-nav {
     display: flex;
-    gap: 2px;
+    gap: 8px;
     overflow-x: auto;
-    min-height: 40px;
-    padding: 0 10px;
+    min-height: 44px;
+    padding: 0 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background: var(--navbar-bg);
+    background: color-mix(in srgb, var(--navbar-bg) 85%, #1e3a5f 15%);
     overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
 
   .mobile-category-nav::-webkit-scrollbar { display: none; }
+
+  .mobile-search-trigger {
+    border: 1.5px solid rgba(255, 255, 255, 0.10);
+    background-color: color-mix(in srgb, var(--input-bg, #2a2a2a) 92%, white 4%) !important;
+    transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+  }
+  .mobile-search-trigger:focus-visible {
+    outline: none;
+    border-color: var(--accent, #ff9f00);
+    box-shadow: 0 0 0 1px var(--accent, #ff9f00);
+  }
+  .mobile-search-trigger:active {
+    transform: scale(0.98);
+  }
+
   .mobile-category-nav__item {
     position: relative;
     display: flex;
-    min-height: 40px;
+    min-height: 44px;
     flex: 0 0 auto;
     align-items: center;
-    padding: 0 10px;
-    color: #f3f4f6;
-    font-size: 12px;
+    padding: 2px 6px;
+    color: #fff;
+    font-size: 13px;
     font-weight: 600;
     line-height: 1;
     text-decoration: none;
     white-space: nowrap;
     -webkit-tap-highlight-color: transparent;
+    transition: filter 180ms ease;
   }
 
   .mobile-category-nav__item::after {
     position: absolute;
-    right: 10px;
+    right: 4px;
     bottom: 0;
-    left: 10px;
-    height: 2px;
+    left: 4px;
+    height: 3px;
     border-radius: 999px 999px 0 0;
     background: var(--accent, #ff9f00);
     content: '';
@@ -297,13 +365,19 @@
     transition: opacity 180ms ease, transform 180ms ease;
   }
 
-  .mobile-category-nav__item--active { color: #fff; }
+  .mobile-category-nav__item--active { color: #fff; font-weight: 700; filter: brightness(1.12); }
   .mobile-category-nav__item--active::after { opacity: 1; transform: scaleX(1); }
 
   .mobile-footer { padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
 
+  .mobile-footer .container-app {
+    padding-inline: 16px;
+  }
+
   .mobile-footer__back-to-top {
-    min-height: 52px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -317,8 +391,10 @@
   }
 
   .mobile-footer__section h4 {
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
   }
 
   .mobile-footer__section ul {
@@ -331,7 +407,7 @@
 
   .mobile-footer__section a {
     display: flex;
-    min-height: 44px;
+    min-height: 40px;
     align-items: center;
     gap: 6px;
     border-radius: 4px;
@@ -342,11 +418,27 @@
   .mobile-footer__section a:active { color: #fff; background: rgba(255, 255, 255, 0.06); opacity: 0.9; }
 
   .mobile-footer__brand {
-    padding-top: 52px;
+    padding-top: 16px;
   }
 
-  .mobile-footer__logo { font-size: 19.5px; }
-  .mobile-footer__copyright { font-size: 13px; line-height: 1.5; }
+  .mobile-footer__logo { font-size: 18px; }
+  .mobile-footer__copyright { font-size: 12px; line-height: 1.5; }
+}
+
+
+/* ── 3b · TOAST (above the fixed bottom nav) ─────────────────────────────── */
+@media (max-width: 767px) {
+  /* Bottom nav is ~62px tall. AppToast.jsx adds this as extra lift on top of
+     each toast's own bottomOffset (cart 28px, wishlist 88px), so the two
+     stay clear of each other instead of collapsing to the same position. */
+  .app-toast {
+    --toast-mobile-lift: 44px;
+  }
+
+  /* The PDP's hand-rolled error toast has no CSS var hook — override directly. */
+  .pdp-inline-toast {
+    bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+  }
 }
 
 
@@ -355,7 +447,7 @@
   .pdp-page {
     width: 100%;
     max-width: 100%;
-    padding: 8px 12px 40px;
+    padding: 8px 16px 24px;
     box-sizing: border-box;
     overflow-x: hidden;
   }
@@ -368,8 +460,11 @@
     position: static;
   }
 
-  .pdp-purchase {
-    position: static;
+  /* PurchaseCard.jsx renders className="purchase-card" (Tailwind + inline
+     styles), not the legacy .pdp-purchase* classes — target the real one
+     so the sticky sidebar doesn't float oddly once the grid stacks. */
+  .purchase-card {
+    position: static !important;
     width: 100%;
   }
 
@@ -381,10 +476,6 @@
 
   .pdp-info__price-row {
     flex-wrap: wrap;
-  }
-
-  .pdp-purchase__btn {
-    width: 100%;
   }
 
   .pdp-skeleton {

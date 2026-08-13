@@ -1,8 +1,5 @@
 import { formatCurrency } from "@/utils/currency";
-
-const SHIPPING_THRESHOLD = 499;
-const SHIPPING_COST      = 40;
-const TAX_RATE           = 0.18;
+import { calculateOrderTotals } from "../utils/calculateOrderTotals";
 
 const OrderSummary = ({
   items = [],
@@ -11,10 +8,7 @@ const OrderSummary = ({
   onBackToCart,
   loading,
 }) => {
-  const subtotal = cartTotal;
-  const shipping = subtotal >= SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
-  const tax      = parseFloat((subtotal * TAX_RATE).toFixed(2));
-  const grand    = subtotal + shipping + tax;
+  const { subtotal, shipping, tax, total } = calculateOrderTotals(cartTotal);
 
   return (
     <div className="order-summary">
@@ -22,26 +16,26 @@ const OrderSummary = ({
 
       <div className="order-summary__rows">
         <div className="order-summary__row">
-          <span>Items ({items.length})</span>
-          <span>{formatCurrency(subtotal)}</span>
+          <span>Subtotal ({items.length} item{items.length === 1 ? "" : "s"})</span>
+          <span className="order-summary__amount">{formatCurrency(subtotal)}</span>
         </div>
         <div className="order-summary__row">
-          <span>Shipping</span>
-          <span className={shipping === 0 ? "order-summary__free" : ""}>
+          <span>Delivery</span>
+          <span className={`order-summary__amount${shipping === 0 ? " order-summary__free" : ""}`}>
             {shipping === 0 ? "FREE" : formatCurrency(shipping)}
           </span>
         </div>
         <div className="order-summary__row">
           <span>Tax (18% GST)</span>
-          <span>{formatCurrency(tax)}</span>
+          <span className="order-summary__amount">{formatCurrency(tax)}</span>
         </div>
       </div>
 
       <div className="order-summary__divider" />
 
       <div className="order-summary__total">
-        <span>Order Total</span>
-        <span>{formatCurrency(grand)}</span>
+        <span>Total</span>
+        <span className="order-summary__total-amount">{formatCurrency(total)}</span>
       </div>
 
       {shipping === 0 && (
@@ -53,10 +47,21 @@ const OrderSummary = ({
           <button
             className="btn order-summary__btn order-summary__btn--place"
             onClick={onPlaceOrder}
+            onTouchStart={() => {}}
             disabled={loading}
           >
             {loading ? "Placing Order…" : "Place Order"}
           </button>
+          <p className="order-summary__secure">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="order-summary__secure-icon">
+              <path
+                d="M12 3l7 3v5c0 4.6-3 8.4-7 10-4-1.6-7-5.4-7-10V6l7-3z"
+                stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"
+              />
+              <path d="M9 12l2 2 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            100% secure payment &middot; SSL encrypted
+          </p>
           <button
             className="btn order-summary__btn order-summary__btn--back"
             onClick={onBackToCart}
@@ -66,8 +71,6 @@ const OrderSummary = ({
           </button>
         </>
       )}
-
-      <p className="order-summary__secure">🔒 Secure checkout</p>
     </div>
   );
 };

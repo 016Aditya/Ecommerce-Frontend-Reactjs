@@ -5,42 +5,30 @@ import PATHS from "@/routes/paths";
 const SLIDES = [
   {
     id: 1,
-    title: "Shop Fashion",
-    subtitle: "Under ₹999",
-    tag: "TOP BRANDS | LATEST TRENDS",
-    bg: "from-blue-50 to-indigo-100",
-    accent: "#2874f0",
-    emoji: "👗",
-    cta: "Shop Now",
+    isFullImage: true,
+    imageSrc: "/images/fashion-hero-promo.png.png",
+    bg: "bg-[#cfc8fc]",
     category: "Clothing",
   },
   {
     id: 2,
     isFullImage: true,
-    imageSrc: "/images/electronics-hero-promo.png.png", // Your active image path
-    bg: "bg-[#020817]", // Dark background color matching the image background
+    imageSrc: "/images/electronics-hero-promo.png.png",
+    bg: "bg-[#020817]",
     category: "Electronics",
   },
   {
     id: 3,
-    title: "Books & More",
-    subtitle: "Starting ₹99",
-    tag: "BESTSELLERS | NEW ARRIVALS",
-    bg: "from-orange-50 to-amber-100",
-    accent: "#e07d00",
-    emoji: "📚",
-    cta: "Browse All",
+    isFullImage: true,
+    imageSrc: "/images/books-hero-promo.png.png",
+    bg: "bg-[#fef3e6]",
     category: "Books",
   },
   {
     id: 4,
-    title: "Home & Living",
-    subtitle: "Revamp in Style",
-    tag: "FURNITURE | DECOR | KITCHEN",
-    bg: "from-green-50 to-emerald-100",
-    accent: "#26a541",
-    emoji: "🏠",
-    cta: "Shop Home",
+    isFullImage: true,
+    imageSrc: "/images/home-hero-promo.png.png",
+    bg: "bg-[#f0f7f2]",
     category: "Home",
   },
 ];
@@ -82,10 +70,10 @@ function HeroBanner() {
 
   return (
     <div className="hero-banner relative overflow-hidden">
-      {/* Entire banner clickable */}
+      {/* Main banner container without transitions */}
       <div
-        className={`transition-all duration-700 cursor-pointer min-h-[260px] sm:min-h-[320px] md:min-h-[360px] flex items-center justify-center ${
-          slide.isFullImage ? slide.bg : `bg-gradient-to-r ${slide.bg}`
+        className={`cursor-pointer w-full flex items-center justify-center ${
+          slide.isFullImage ? slide.bg : slide.bg
         }`}
         onClick={goToCategory}
         role="link"
@@ -94,18 +82,18 @@ function HeroBanner() {
         onKeyDown={(e) => e.key === "Enter" && goToCategory()}
       >
         {slide.isFullImage ? (
-          /* NO CROPPING: Entire promo image is 100% visible and centered */
-          <div className="w-full h-[260px] sm:h-[320px] md:h-[360px] flex items-center justify-center p-2">
+          /* Full Image Banner View with Aspect Ratio maintained */
+          <div className="w-full max-w-[1400px] aspect-[2.4/1] max-h-[420px] flex items-center justify-center">
             <img
               src={slide.imageSrc}
-              alt="Electronics Sale Promo"
-              className="w-full h-full object-contain pointer-events-none select-none"
+              alt={`${slide.category} Sale Promo`}
+              className="w-full h-full object-cover sm:object-contain pointer-events-none select-none"
               loading="eager"
               draggable={false}
             />
           </div>
         ) : (
-          /* Standard layout for Fashion, Books, and Home */
+          /* Standard Card View (Books & Home) */
           <div
             className="
               container-app
@@ -117,7 +105,10 @@ function HeroBanner() {
               w-full
               z-10
             "
-            style={{ paddingTop: "clamp(21px, 5.25vw, 34px)", paddingBottom: "clamp(21px, 5.25vw, 34px)" }}
+            style={{
+              paddingTop: "clamp(21px, 5.25vw, 34px)",
+              paddingBottom: "clamp(21px, 5.25vw, 34px)",
+            }}
           >
             {/* Left content */}
             <div className="hero-banner__content flex flex-col gap-3 max-w-[460px]">
@@ -145,7 +136,7 @@ function HeroBanner() {
                   e.stopPropagation();
                   goToCategory();
                 }}
-                className="hero-banner__cta mt-2 rounded-sm px-8 py-2.5 text-sm font-bold text-white shadow transition hover:opacity-90 w-fit"
+                className="hero-banner__cta mt-2 rounded-sm px-8 py-2.5 text-sm font-bold text-white w-fit"
                 style={{ backgroundColor: slide.accent }}
               >
                 {slide.cta}
@@ -155,7 +146,7 @@ function HeroBanner() {
             {/* Right Side - Emoji */}
             <div className="hidden sm:flex flex-1 justify-end items-center relative h-full">
               <div
-                className="hero-banner__emoji select-none drop-shadow-lg"
+                className="hero-banner__emoji select-none"
                 style={{
                   fontSize: "clamp(64px, 10vw, 161px)",
                 }}
@@ -171,22 +162,42 @@ function HeroBanner() {
       {/* Prev arrow */}
       <button
         onClick={handlePrev}
-        className="absolute left-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow hover:bg-white transition z-20"
+        className="absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/65 z-20"
         aria-label="Previous slide"
       >
-        <svg className="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+        <svg
+          className="h-5 w-5 text-slate-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 19.5 8.25 12l7.5-7.5"
+          />
         </svg>
       </button>
 
       {/* Next arrow */}
       <button
         onClick={handleNext}
-        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/80 shadow hover:bg-white transition z-20"
+        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-white/65 z-20"
         aria-label="Next slide"
       >
-        <svg className="h-5 w-5 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        <svg
+          className="h-5 w-5 text-slate-700"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="m8.25 4.5 7.5 7.5-7.5 7.5"
+          />
         </svg>
       </button>
 
@@ -196,7 +207,7 @@ function HeroBanner() {
           <button
             key={i}
             onClick={(e) => handleDot(e, i)}
-            className={`h-2 rounded-full transition-all ${
+            className={`h-2 rounded-full ${
               i === current ? "w-6 bg-[#2874f0]" : "w-2 bg-slate-300"
             }`}
             aria-label={`Go to slide ${i + 1}`}

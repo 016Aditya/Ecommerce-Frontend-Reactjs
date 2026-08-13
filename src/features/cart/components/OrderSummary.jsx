@@ -1,6 +1,7 @@
 import { formatCurrency } from "@/utils/currency";
 import { useNavigate } from "react-router-dom";
 import PATHS from "@/routes/paths";
+import "@/features/cart/styles/OrderSummary.css";
 
 /**
  * OrderSummary
@@ -52,8 +53,9 @@ const OrderSummary = ({ items, cartTotal, onCheckout, onClearCart, loading, isGu
 
         <button
           onClick={onCheckout}
+          onTouchStart={() => {}}
           disabled={loading || items.length === 0}
-          className="w-full font-bold py-3 rounded-lg transition mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="cart-checkout-btn w-full mb-3 disabled:bg-gray-300 disabled:cursor-not-allowed"
           style={{
             background: isGuest ? '#f97316' : '#f97316',
             color: '#fff',
@@ -72,7 +74,7 @@ const OrderSummary = ({ items, cartTotal, onCheckout, onClearCart, loading, isGu
         <button
           onClick={onClearCart}
           disabled={loading}
-          className="w-full border-2 border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 font-semibold py-3 rounded-lg transition"
+          className="cart-clear-btn w-full border-2 border-gray-300 text-gray-700 disabled:opacity-50 font-semibold py-3 rounded-lg"
         >
           Clear Cart
         </button>

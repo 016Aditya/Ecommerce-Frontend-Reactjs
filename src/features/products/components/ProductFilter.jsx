@@ -14,17 +14,21 @@ const ProductFilter = ({ activeCategory, activeSubcategory, onSelect, onSubSelec
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by category" style={{ marginTop: '6px' }}>
         {TOP_CATEGORIES.map((cat) => (
           <button
             key={cat}
             onClick={() => onSelect(cat)}
             aria-pressed={activeCategory === cat}
-            className="rounded-full px-4 py-1.5 text-sm font-medium transition"
+            className="rounded-full transition"
             style={{
               backgroundColor: activeCategory === cat ? "var(--info-text)" : "var(--bg-secondary)",
               color: activeCategory === cat ? "#ffffff" : "var(--text-secondary)",
               border: `1px solid ${activeCategory === cat ? "var(--info-text)" : "var(--border-color)"}`,
+              fontSize: '15px',
+              fontWeight: activeCategory === cat ? 700 : 500,
+              paddingBlock: '7px',
+              paddingInline: '20px',
             }}
           >
             {cat}
@@ -43,11 +47,14 @@ const ProductFilter = ({ activeCategory, activeSubcategory, onSelect, onSubSelec
                 key={sub}
                 onClick={() => onSubSelect?.(key)}
                 aria-pressed={isActive}
-                className="rounded-full px-3 py-1 text-xs font-medium transition"
+                className="rounded-full font-medium transition"
                 style={{
                   backgroundColor: isActive ? "var(--info-bg)" : "var(--card-bg)",
                   color: isActive ? "var(--info-text)" : "var(--text-secondary)",
                   border: `1px solid ${isActive ? "var(--info-border)" : "var(--border-color)"}`,
+                  fontSize: '12px',
+                  paddingBlock: '6px',
+                  paddingInline: '15px',
                 }}
               >
                 {sub}

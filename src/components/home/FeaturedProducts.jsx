@@ -55,14 +55,17 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
         border: '1px solid var(--border-color)',
         borderRadius: '12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+        transition: 'border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-2px)';
         e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)';
+        e.currentTarget.style.borderColor = 'color-mix(in srgb, var(--border-color) 70%, white 30%)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.07)';
+        e.currentTarget.style.borderColor = 'var(--border-color)';
       }}
       onClick={openProduct}
       role="button"
@@ -77,7 +80,7 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
           margin: '7px',
           width: 'calc(100% - 14px)',
           borderRadius: '8px',
-          padding: '8px',
+          padding: '13px',
           background: 'linear-gradient(135deg, var(--featured-image-start) 0%, var(--featured-image-end) 100%)',
         }}
       >
@@ -105,12 +108,15 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
       {/* Content */}
       <div className="flex flex-1 flex-col gap-1.5 px-3 pb-3 pt-1.5">
         <p
-          className="featured-card__name line-clamp-2 text-sm font-semibold leading-snug"
+          className="featured-card__name line-clamp-2"
           style={{
             color: 'var(--text-primary)',
             overflowWrap: 'anywhere',
             wordBreak: 'break-word',
-            minHeight: '2.4em',
+            fontSize: '16px',
+            fontWeight: 700,
+            lineHeight: 1.3,
+            minHeight: '2.6em',
           }}
         >
           {product.name}
@@ -119,12 +125,13 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
         <div className="mt-0.5">
           <RatingBadge
             rating={product.averageRating || 0}
-            count={product.totalRatings || 0}
+            count={product.reviewCount || 0}
+            size="lg"
           />
         </div>
 
         <div className="mt-0.5 flex flex-wrap items-baseline gap-1.5">
-          <span style={{ fontSize: '16.8px', fontWeight: 800, color: '#22c55e' }}>
+          <span style={{ fontSize: '19px', fontWeight: 800, color: '#22c55e' }}>
             {formatCurrencyTrimmed(product.price)}
           </span>
           {product.originalPrice && product.originalPrice > product.price ? (
@@ -139,22 +146,41 @@ const FeaturedCard = memo(function FeaturedCard({ product }) {
           ) : null}
         </div>
 
-        <p className="text-xs font-semibold text-green-500">✓ Free Delivery</p>
+        <p
+          className="text-green-500"
+          style={{ fontSize: '13.5px', fontWeight: 700, marginBlock: '2px' }}
+        >
+          ✓ Free Delivery
+        </p>
 
         {(product.category || product.subcategory) ? (
           <div className="flex flex-wrap items-center gap-1">
             {product.category ? (
               <span
-                className="w-fit rounded-full px-2 py-0.5"
-                style={{ fontSize: '10px', color: 'var(--text-secondary)', backgroundColor: 'var(--badge-bg)' }}
+                className="w-fit rounded-full"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  backgroundColor: 'var(--badge-bg)',
+                  paddingInline: '11px',
+                  paddingBlock: '4px',
+                }}
               >
                 {product.category}
               </span>
             ) : null}
             {product.subcategory ? (
               <span
-                className="w-fit rounded-full px-2 py-0.5"
-                style={{ fontSize: '10px', color: 'var(--text-secondary)', backgroundColor: 'var(--badge-bg)' }}
+                className="w-fit rounded-full"
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)',
+                  backgroundColor: 'var(--badge-bg)',
+                  paddingInline: '11px',
+                  paddingBlock: '4px',
+                }}
               >
                 {product.subcategory}
               </span>
@@ -224,7 +250,7 @@ function FeaturedProducts() {
               Featured Products
             </h2>
             <p
-              className="mt-0.5"
+              className="mt-1.5 featured-section__subtitle"
               style={{ color: 'var(--text-secondary)', fontSize: '13.5px' }}
             >
               Discover our most popular and trending products.

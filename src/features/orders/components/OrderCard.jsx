@@ -65,8 +65,18 @@ const OrderCard = ({ order }) => {
       ? "Returning"
       : null;
 
+  const detailPath = buildPath(PATHS.ORDER_DETAIL, order.id);
+
+  // Desktop-only: clicking anywhere on the card opens order details,
+  // unless the click originated from a button/link/input inside it.
+  const handleCardClick = (event) => {
+    if (window.innerWidth < 768) return;
+    if (event.target.closest('button, a, input, [role="button"]')) return;
+    navigate(detailPath);
+  };
+
   return (
-    <div className="order-card">
+    <div className="order-card order-card--clickable" onClick={handleCardClick}>
       {/* ── Header row ── */}
       <div className="order-card__header">
         <div className="order-card__header-left">
@@ -122,7 +132,7 @@ const OrderCard = ({ order }) => {
         <div className="order-card__actions">
           <button
             className="btn order-card__btn order-card__btn--detail"
-            onClick={() => navigate(buildPath(PATHS.ORDER_DETAIL, order.id))}
+            onClick={() => navigate(detailPath)}
           >
             View Details
           </button>

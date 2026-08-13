@@ -43,7 +43,7 @@
 
   /* Default: solid light grey, subtle */
   fill:    #BFC5CF;
-  opacity: 0.88;
+  opacity: 0.68;
 
   transition:
     fill       200ms ease-out,

@@ -30,23 +30,25 @@ const AddressCard = ({
 
   return (
     <div
-      className="rounded-xl p-5 transition"
+      className="rounded-xl transition"
       style={{
+        paddingBlock: '18px',
+        paddingInline: '28px',
         backgroundColor: 'var(--card-bg)',
         border: `1px solid ${ selected ? 'var(--accent)' : 'var(--border-color)' }`,
         boxShadow: selected ? '0 0 0 2px var(--accent)' : undefined,
       }}
     >
       {/* Header row */}
-      <div className="flex items-start justify-between gap-3 mb-3">
+      <div className="flex items-start justify-between gap-3 mb-3.5">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>
+          <span className="font-semibold text-[15px]" style={{ color: 'var(--text-primary)' }}>
             {address.name}
           </span>
 
           {address.defaultAddress && (
             <span
-              className="text-xs font-medium px-2 py-0.5 rounded-full"
+              className="text-[13px] font-medium px-2 py-0.5 rounded-full"
               style={{
                 backgroundColor: 'rgba(99,102,241,0.12)',
                 color: 'var(--accent)',
@@ -69,7 +71,7 @@ const AddressCard = ({
       </div>
 
       {/* Address lines */}
-      <div className="text-sm space-y-0.5" style={{ color: 'var(--text-secondary)' }}>
+      <div className="text-sm space-y-1" style={{ color: 'var(--text-secondary)', lineHeight: '22.5px' }}>
         <p>{address.phone}</p>
         <p>{address.line1}</p>
         {address.line2 && <p>{address.line2}</p>}

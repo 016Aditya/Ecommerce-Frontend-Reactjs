@@ -73,17 +73,18 @@ const CheckoutAddress = ({ selectedAddressId, onSelect }) => {
     >
       {/* Header */}
       <div
-        className="px-6 py-4"
+        className="px-6"
         style={{
+          paddingBlock: '22px',
           borderBottom: '1px solid var(--border-color)',
           backgroundColor: 'var(--bg-secondary)',
         }}
       >
         <div className="flex items-center gap-3">
-          <span className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-500 text-white font-bold text-sm">
+          <span className="flex items-center justify-center rounded-full bg-blue-500 text-white font-bold text-[15px]" style={{ height: '34px', width: '34px' }}>
             1
           </span>
-          <h2 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+          <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
             Delivery Address
           </h2>
         </div>
@@ -118,8 +119,8 @@ const CheckoutAddress = ({ selectedAddressId, onSelect }) => {
             <button
               type="button"
               onClick={() => setShowForm(true)}
-              className="mt-4 w-full border-2 border-dashed font-semibold py-3 rounded-lg transition text-sm"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
+              className="w-full border-2 border-dashed font-semibold py-2 rounded-lg transition text-[15px]"
+              style={{ marginTop: '10px', borderColor: 'var(--border-color)', color: 'var(--text-secondary)' }}
               onMouseEnter={(e) => (e.currentTarget.style.borderColor = 'var(--text-secondary)')}
               onMouseLeave={(e) => (e.currentTarget.style.borderColor = 'var(--border-color)')}
             >

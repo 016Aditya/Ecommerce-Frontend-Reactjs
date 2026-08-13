@@ -116,7 +116,7 @@ const AppToast = ({
       style={{
         '--toast-bg': resolvedBgColor,
         '--toast-shadow': resolvedShadowColor,
-        bottom: `calc(${bottomOffset} + env(safe-area-inset-bottom, 0px))`,
+        bottom: `calc(${bottomOffset} + env(safe-area-inset-bottom, 0px) + var(--toast-mobile-lift, 0px))`,
       }}
     >
       {resolvedIcon && (

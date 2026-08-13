@@ -147,7 +147,7 @@
   --card-bg-elevated: #20242c;
   --hover-bg:         #2a2f38;
   /* ── Navbar: lighter than page bg (#0f1115) for clear visual separation ── */
-  --navbar-bg:        #181c23;
+  --navbar-bg:        #171a22;
   --footer-bg:        #0a0a0c;
   --footer-text:      #9ca3af;
 
@@ -221,7 +221,7 @@
     --card-bg:          #1a1a1f;
     --hover-bg:         #2a2f38;
     /* ── Navbar lighter than page bg for contrast ── */
-    --navbar-bg:        #181c23;
+    --navbar-bg:        #171a22;
     --footer-bg:        #0a0a0c;
     --footer-text:      #9ca3af;
     --input-bg:         #1e1e24;
