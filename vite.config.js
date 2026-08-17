@@ -57,18 +57,9 @@ export default defineConfig({
           // UI utilities
           if (
             id.includes('node_modules/axios') ||
-            id.includes('node_modules/react-hot-toast') ||
-            id.includes('node_modules/lucide-react')
+            id.includes('node_modules/react-hot-toast')
           ) {
             return 'vendor-ui';
-          }
-          // Animation library (heavy) — split to its own chunk
-          if (id.includes('node_modules/framer-motion')) {
-            return 'vendor-motion';
-          }
-          // Date utilities
-          if (id.includes('node_modules/date-fns') || id.includes('node_modules/dayjs')) {
-            return 'vendor-dates';
           }
         },
       },
