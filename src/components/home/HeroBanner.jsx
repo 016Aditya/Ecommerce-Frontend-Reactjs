@@ -6,28 +6,28 @@ const SLIDES = [
   {
     id: 1,
     isFullImage: true,
-    imageSrc: "/images/fashion-hero-promo.png.png",
+    imageSrc: "/images/fashion-hero-promo.webp",
     bg: "bg-[#cfc8fc]",
     category: "Clothing",
   },
   {
     id: 2,
     isFullImage: true,
-    imageSrc: "/images/electronics-hero-promo.png.png",
+    imageSrc: "/images/electronics-hero-promo.webp",
     bg: "bg-[#020817]",
     category: "Electronics",
   },
   {
     id: 3,
     isFullImage: true,
-    imageSrc: "/images/books-hero-promo.png.png",
+    imageSrc: "/images/books-hero-promo.webp",
     bg: "bg-[#fef3e6]",
     category: "Books",
   },
   {
     id: 4,
     isFullImage: true,
-    imageSrc: "/images/home-hero-promo.png.png",
+    imageSrc: "/images/home-hero-promo.webp",
     bg: "bg-[#f0f7f2]",
     category: "Home",
   },
@@ -88,7 +88,10 @@ function HeroBanner() {
               src={slide.imageSrc}
               alt={`${slide.category} Sale Promo`}
               className="w-full h-full object-cover sm:object-contain pointer-events-none select-none"
+              width={1600}
+              height={668}
               loading="eager"
+              fetchPriority="high"
               draggable={false}
             />
           </div>

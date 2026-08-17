@@ -60,7 +60,10 @@ function MobileHeroBanner() {
           src={slide.imageSrc}
           alt={`${slide.category} Sale Promo`}
           className="w-full h-full object-cover pointer-events-none select-none"
+          width={860}
+          height={491}
           loading="eager"
+          fetchPriority="high"
           draggable={false}
         />
       </div>
