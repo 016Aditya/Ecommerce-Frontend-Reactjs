@@ -53,6 +53,18 @@
     <link rel="dns-prefetch" href="https://ecommerce-backend-springboot-production.up.railway.app" />
 
     <!--
+      LCP fix: in a client-rendered SPA, the hero <img> doesn't exist in the
+      DOM until React mounts, so the browser's preload scanner can't discover
+      it while the JS bundle is still downloading/parsing. These preload the
+      actual first-slide image (index 0 in heroSlides.js / HeroBanner.jsx) in
+      parallel with the JS, instead of only starting after React renders it.
+      Media-gated on the same 768px breakpoint the components use (Tailwind
+      `md:`) so only one of the two is ever fetched.
+    -->
+    <link rel="preload" as="image" href="/images/fashion-hero-promo-mobile.webp" type="image/webp" media="(max-width: 767px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/fashion-hero-promo.webp" type="image/webp" media="(min-width: 768px)" fetchpriority="high" />
+
+    <!--
       CRITICAL: Inline theme script — executes synchronously during HTML
       parsing, BEFORE any external CSS or JS loads. This is the earliest
       possible point to read the persisted theme and apply it, which is
