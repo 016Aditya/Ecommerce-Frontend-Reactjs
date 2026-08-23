@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import PATHS from "@/routes/paths";
 import { useCartQuery, useGuestCartCount } from "@/features/cart/hooks/useCart";
 import { useWishlistQuery } from "@/features/wishlist/hooks/useWishlist";
@@ -121,6 +121,43 @@ function Navbar() {
   const closeMobileMenu = () => {
     setMobileMenuVisible(false);
     setTimeout(() => setMobileMenuOpen(false), 220);
+  };
+
+  // Swipe-left-to-close for the mobile hamburger sidebar
+  const [menuDragX, setMenuDragX] = useState(0);
+  const [menuDragging, setMenuDragging] = useState(false);
+  const menuTouchRef = useRef({ startX: 0, startY: 0, dragging: false });
+
+  const handleMenuTouchStart = (e) => {
+    const t = e.touches[0];
+    menuTouchRef.current = { startX: t.clientX, startY: t.clientY, dragging: true };
+    setMenuDragging(true);
+  };
+
+  const handleMenuTouchMove = (e) => {
+    if (!menuTouchRef.current.dragging) return;
+    const t = e.touches[0];
+    const deltaX = t.clientX - menuTouchRef.current.startX;
+    const deltaY = t.clientY - menuTouchRef.current.startY;
+    if (Math.abs(deltaY) > Math.abs(deltaX)) return; // vertical scroll, ignore
+    if (deltaX < 0) setMenuDragX(deltaX);
+  };
+
+  const handleMenuTouchEnd = () => {
+    if (!menuTouchRef.current.dragging) return;
+    menuTouchRef.current.dragging = false;
+    const shouldClose = menuDragX < -60;
+    if (shouldClose) closeMobileMenu();
+    // Stay at the dragged position (transition still off) for one more paint
+    // before re-enabling the transition — flipping both `transition` and
+    // `transform` in the same commit makes the browser skip the animation
+    // and snap straight to the end state instead of sliding.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setMenuDragging(false);
+        setMenuDragX(0);
+      });
+    });
   };
 
   const handleSearch = (term) => {
@@ -341,11 +378,16 @@ function Navbar() {
         <>
           <div onClick={closeMobileMenu}
             style={{ position:"fixed", inset:0, backgroundColor:"rgba(0,0,0,0.55)", zIndex:998, opacity: mobileMenuVisible ? 1 : 0, transition:"opacity 220ms ease" }} />
-          <div style={{
+          <div
+            onTouchStart={handleMenuTouchStart}
+            onTouchMove={handleMenuTouchMove}
+            onTouchEnd={handleMenuTouchEnd}
+            onTouchCancel={handleMenuTouchEnd}
+            style={{
             position:"fixed", top:0, left:0, width:"78vw", maxWidth:"300px", height:"100dvh",
             backgroundColor:"var(--modal-bg, #1c1c1c)", zIndex:999, overflowY:"auto", padding:"0 0 24px",
-            transform: mobileMenuVisible ? "translateX(0)" : "translateX(-100%)",
-            transition:"transform 220ms ease",
+            transform: menuDragging ? `translateX(${menuDragX}px)` : (mobileMenuVisible ? "translateX(0)" : "translateX(-100%)"),
+            transition: menuDragging ? "none" : "transform 220ms ease",
           }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px", backgroundColor:"var(--navbar-bg)", marginBottom:"8px" }}>
               <div style={{ display:"flex", flexDirection:"column", gap:"2px", minWidth:0 }}>
