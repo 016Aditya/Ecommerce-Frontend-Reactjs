@@ -8,6 +8,11 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+// Fallback used when the backend reports ACCOUNT_LOCKED but doesn't send a
+// usable remainingSeconds (e.g. 0 or missing) — locks the UI for 15 minutes
+// instead of showing "0 seconds" and leaving the form submittable.
+const DEFAULT_LOCKOUT_SECONDS = 15 * 60;
+
 export function formatLockoutDuration(totalSeconds = 0) {
   const seconds = Math.max(toNumber(totalSeconds, 0), 0);
   const minutes = Math.floor(seconds / 60);
@@ -47,13 +52,17 @@ function extractSecurityPayload(error) {
     payload.error?.code ??
     null;
 
-  const remainingSeconds = toNumber(
+  let remainingSeconds = toNumber(
     payload.remainingSeconds ??
     payload.retryAfterSeconds ??
     payload.details?.remainingSeconds ??
     payload.retryAfter,
     0
   );
+
+  if (code === 'ACCOUNT_LOCKED' && remainingSeconds <= 0) {
+    remainingSeconds = DEFAULT_LOCKOUT_SECONDS;
+  }
 
   const lockoutCount = toNumber(
     payload.lockoutCount ??
