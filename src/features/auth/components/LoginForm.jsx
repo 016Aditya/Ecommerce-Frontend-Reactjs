@@ -165,7 +165,6 @@ function LoginForm() {
           role="alert"
           aria-live="polite"
         >
-          <span className="mt-0.5 text-sm" style={{ color: "#22c55e" }}>OK</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold" style={{ color: "#22c55e" }}>
               Account Created Successfully

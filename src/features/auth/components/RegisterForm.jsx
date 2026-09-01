@@ -15,7 +15,7 @@ import { useMemo, useRef, useState } from "react";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import PasswordField from "./PasswordField";
-import PasswordStrength, { isPasswordValid } from "./PasswordStrength";
+import PasswordStrength, { getPasswordScore, isPasswordValid } from "./PasswordStrength";
 import { PATHS } from "@/routes/paths";
 import { useRegisterMutation } from "@/features/auth/hooks/useRegisterMutation";
 import { useToastStore } from '@/store/toastStore';
@@ -117,6 +117,17 @@ function RegisterForm() {
     setFormData((prev) => ({ ...prev, [name]: value }));
     setTouched((prev) => ({ ...prev, [name]: true }));
     setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+  };
+
+  const handlePasswordBlur = () => {
+    if (formData.password && getPasswordScore(formData.password) <= 2) {
+      showToast({
+        type: "warning",
+        title: "Weak Password",
+        message: "Add uppercase, numbers, and special characters to strengthen it.",
+        duration: 3000,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -247,6 +258,7 @@ function RegisterForm() {
             placeholder="Create a strong password"
             value={formData.password}
             onChange={handleChange}
+            onBlur={handlePasswordBlur}
             error={fieldErrors.password}
             autoComplete="new-password"
             disabled={registerMutation.isPending}
@@ -271,7 +283,7 @@ function RegisterForm() {
               className="flex items-center gap-1.5 text-xs"
               style={{ color: pwMatch ? "#22c55e" : "#ef4444" }}
             >
-              <span className="font-bold">{pwMatch ? "OK" : "x"}</span>
+              {!pwMatch && <span className="font-bold">x</span>}
               {pwMatch ? "Passwords match" : "Passwords do not match"}
             </p>
           )}

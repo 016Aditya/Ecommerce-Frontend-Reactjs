@@ -9,7 +9,7 @@ const EMPTY_TOAST = {
   action: null,
 };
 
-const showTimedToast = (set, get, timerKey, visibleKey, toastKey, toastValue) => {
+const showTimedToast = (set, get, timerKey, visibleKey, toastKey, toastValue, duration = AUTO_HIDE_MS) => {
   const existing = get()[timerKey];
   if (existing) clearTimeout(existing);
 
@@ -23,7 +23,7 @@ const showTimedToast = (set, get, timerKey, visibleKey, toastKey, toastValue) =>
     [visibleKey]: false,
     [toastKey]: EMPTY_TOAST,
     [timerKey]: null,
-  }), AUTO_HIDE_MS);
+  }), duration);
 
   set({ [timerKey]: timer });
 };
@@ -33,13 +33,13 @@ export const useToastStore = create((set, get) => ({
   cartToast: EMPTY_TOAST,
   _cartTimer: null,
 
-  showToast: ({ type = 'info', title = '', message = '', action = null } = {}) => {
+  showToast: ({ type = 'info', title = '', message = '', action = null, duration } = {}) => {
     showTimedToast(set, get, '_cartTimer', 'cartVisible', 'cartToast', {
       type,
       title,
       message,
       action,
-    });
+    }, duration);
   },
 
   showCartToast: () => {
