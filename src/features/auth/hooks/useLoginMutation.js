@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/authStore';
+import { useToastStore } from '@/store/toastStore';
 import { getBackendErrorMessage, getFriendlyGeneralError } from '@/features/auth/utils/authErrorHandling';
 
 function toNumber(value, fallback = 0) {
@@ -81,6 +82,7 @@ function extractSecurityPayload(error) {
 
 export function useLoginMutation() {
   const login = useAuthStore((state) => state.login);
+  const showToast = useToastStore((state) => state.showToast);
   const clearError = useAuthStore((state) => state.clearError);
   const setError = useAuthStore((state) => state.setError);
   const setLoginSecurity = useAuthStore((state) => state.setLoginSecurity);
@@ -123,6 +125,16 @@ export function useLoginMutation() {
         setCaptchaRequirement(true);
         setCaptchaToken('');
       }
+
+      if (security.code === 'ACCOUNT_LOCKED') {
+        showToast({ type: 'error', title: 'Account locked for 15 mins', duration: 3000 });
+      } else if (
+        security.code === 'INVALID_CREDENTIALS' ||
+        (!security.code && error?.response?.status === 401)
+      ) {
+        showToast({ type: 'warning', title: 'Incorrect password or email', duration: 3000 });
+      }
+
       if (security.code) {
         setLoginSecurity(security);
         setError(backendMessage);
