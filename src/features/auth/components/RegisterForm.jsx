@@ -123,8 +123,7 @@ function RegisterForm() {
     if (formData.password && getPasswordScore(formData.password) <= 2) {
       showToast({
         type: "warning",
-        title: "Weak Password",
-        message: "Add uppercase, numbers, and special characters to strengthen it.",
+        title: "Weak Password!",
         duration: 3000,
       });
     }
