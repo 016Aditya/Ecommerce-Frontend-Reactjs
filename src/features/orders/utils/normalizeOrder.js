@@ -165,7 +165,10 @@ export const normalizeOrdersResponse = (payload) => {
     ? payload
     : pickFirst(payload?.orders, payload?.content, payload?.data, []);
 
-  return Array.isArray(rawOrders) ? rawOrders.map(normalizeOrder) : [];
+  const orders = Array.isArray(rawOrders) ? rawOrders.map(normalizeOrder) : [];
+
+  // Newest orders first, oldest last.
+  return orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 };
 
 export { ORDER_IMAGE_PLACEHOLDER };

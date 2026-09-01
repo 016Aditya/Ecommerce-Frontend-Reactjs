@@ -1,15 +1,28 @@
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PATHS from "@/routes/paths";
 import OrderCard from "../components/OrderCard";
+import OrdersPagination from "../components/OrdersPagination";
 import SEO from "@/components/common/SEO";
 import { useSEO } from "@/hooks/useSEO";
 import { useOrders } from "../hooks/useOrders";
 import { OrderCardSkeleton } from "@/components/skeleton";
 import "../styles/Orders.css";
 
+const ORDERS_PER_PAGE = 10;
+
 const OrdersPage = () => {
   const { orders, loading, error, fetchOrders } = useOrders();
   const navigate = useNavigate();
+  const [page, setPage] = useState(0);
+
+  const totalPages = Math.max(1, Math.ceil(orders.length / ORDERS_PER_PAGE));
+  const currentPage = Math.min(page, totalPages - 1);
+
+  const pagedOrders = useMemo(() => {
+    const start = currentPage * ORDERS_PER_PAGE;
+    return orders.slice(start, start + ORDERS_PER_PAGE);
+  }, [orders, currentPage]);
 
   const { seoProps } = useSEO({
     title: 'My Orders | Shop Fashion',
@@ -68,11 +81,16 @@ const OrdersPage = () => {
       <p className="orders-page__count">
         {orders.length} order{orders.length !== 1 ? "s" : ""}
       </p>
-      <div className="orders-list">
-        {orders.map((order) => (
+      <div className="orders-list" key={currentPage}>
+        {pagedOrders.map((order) => (
           <OrderCard key={order.id} order={order} />
         ))}
       </div>
+      <OrdersPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
     </section>
   );
 };

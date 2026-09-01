@@ -22,6 +22,84 @@
 
 /* ── Orders list ────────────────────────────────────────────── */
 .orders-list { display: flex; flex-direction: column; gap: 16px; }
+.orders-list { animation: orders-fade-in 220ms ease; }
+@keyframes orders-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Pagination ─────────────────────────────────────────────── */
+.orders-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 28px;
+}
+.orders-pagination__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease, opacity 160ms ease;
+}
+.orders-pagination__arrow:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.orders-pagination__arrow:active:not(:disabled) { transform: translateY(0); }
+.orders-pagination__arrow:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.orders-pagination__pages {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.orders-pagination__page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 4px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+.orders-pagination__page:hover:not(.is-active) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+.orders-pagination__page.is-active {
+  background: var(--accent);
+  color: var(--accent-text, #fff);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transform: scale(1.08);
+}
+.orders-pagination__ellipsis {
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  min-width: 20px;
+  height: 34px;
+  padding-bottom: 10px;
+  color: var(--text-tertiary, var(--text-secondary));
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+}
 
 /* ── Order card (orders list page) ───────────────────────────── */
 .order-card {
