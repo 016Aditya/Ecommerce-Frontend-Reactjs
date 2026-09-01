@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { addressSchema }     from '../validation/addressSchema';
 import { EMPTY_FORM }        from '../utils/addressMapper';
 
+const PINCODE_API_URL = 'https://api.postalpincode.in/pincode';
+
 /**
  * AddressForm
  *
@@ -26,14 +28,59 @@ const AddressForm = ({
   const [formData, setFormData] = useState({ ...EMPTY_FORM });
   const [errors,   setErrors]   = useState({});
 
+  // PIN code → city/state auto-fill lookup
+  const [pinLoading, setPinLoading] = useState(false);
+  const [pinError,   setPinError]   = useState('');
+
   useEffect(() => {
     setFormData(initialData ? { ...EMPTY_FORM, ...initialData } : { ...EMPTY_FORM });
     setErrors({});
+    setPinError('');
   }, [initialData]);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
     if (errors[key]) setErrors((prev) => { const n = { ...prev }; delete n[key]; return n; });
+  };
+
+  const fetchPincodeDetails = async (pin) => {
+    setPinLoading(true);
+    setPinError('');
+    try {
+      const res  = await fetch(`${PINCODE_API_URL}/${pin}`);
+      const data = await res.json();
+      const result     = data?.[0];
+      const postOffice = result?.PostOffice?.[0];
+
+      if (result?.Status === 'Success' && postOffice) {
+        // Guard against a stale response if the user has since changed the PIN.
+        setFormData((prev) => (prev.zipCode !== pin ? prev : {
+          ...prev,
+          city:    postOffice.District,
+          state:   postOffice.State,
+          country: 'India',
+        }));
+        setErrors((prev) => { const n = { ...prev }; delete n.city; delete n.state; return n; });
+      } else {
+        setFormData((prev) => (prev.zipCode !== pin ? prev : { ...prev, city: '', state: '' }));
+        setPinError('Invalid Indian PIN code');
+      }
+    } catch {
+      setFormData((prev) => (prev.zipCode !== pin ? prev : { ...prev, city: '', state: '' }));
+      setPinError('Invalid Indian PIN code');
+    } finally {
+      setPinLoading(false);
+    }
+  };
+
+  const handlePinChange = (value) => {
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 6);
+    handleChange('zipCode', digitsOnly);
+    setPinError('');
+
+    if (digitsOnly.length === 6) {
+      fetchPincodeDetails(digitsOnly);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -61,9 +108,9 @@ const AddressForm = ({
     { key: 'phone',   label: 'Phone Number',           required: true,  span: 1 },
     { key: 'line1',   label: 'Address',                required: true,  span: 2 },
     { key: 'line2',   label: 'Apt / Floor (optional)', required: false, span: 2 },
-    { key: 'city',    label: 'City',                   required: true,  span: 1 },
-    { key: 'state',   label: 'State',                  required: true,  span: 1 },
     { key: 'zipCode', label: 'Pincode',                required: true,  span: 1 },
+    { key: 'state',   label: 'State',                  required: true,  span: 1 },
+    { key: 'city',    label: 'City',                   required: true,  span: 1 },
     { key: 'country', label: 'Country',                required: false, span: 1 },
   ];
 
@@ -83,17 +130,32 @@ const AddressForm = ({
             <input
               id={`af-${key}`}
               type="text"
+              inputMode={key === 'zipCode' ? 'numeric' : undefined}
+              maxLength={key === 'zipCode' ? 6 : undefined}
               value={formData[key] ?? ''}
-              onChange={(e) => handleChange(key, e.target.value)}
+              onChange={(e) =>
+                key === 'zipCode'
+                  ? handlePinChange(e.target.value)
+                  : handleChange(key, e.target.value)
+              }
               placeholder={label}
-              className={inputCls(!!errors[key])}
+              autoComplete={key === 'zipCode' ? 'postal-code' : undefined}
+              className={inputCls(!!errors[key] || (key === 'zipCode' && !!pinError))}
               style={{
                 backgroundColor: 'var(--bg-tertiary)',
                 color: 'var(--text-primary)',
-                borderColor: errors[key] ? undefined : 'var(--border-color)',
+                borderColor: errors[key] || (key === 'zipCode' && pinError) ? undefined : 'var(--border-color)',
               }}
             />
-            {errors[key] && (
+            {key === 'zipCode' && pinLoading && (
+              <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                Fetching city and state…
+              </p>
+            )}
+            {key === 'zipCode' && !pinLoading && pinError && (
+              <p className="text-red-500 text-xs mt-1">{pinError}</p>
+            )}
+            {!(key === 'zipCode' && (pinLoading || pinError)) && errors[key] && (
               <p className="text-red-500 text-xs mt-1">{errors[key]}</p>
             )}
           </div>
