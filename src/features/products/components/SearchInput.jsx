@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import useDebounce from '@/hooks/useDebounce';
 import { useProductSuggestionsQuery } from '@/hooks/useQueryProducts';
+import { formatCurrencyTrimmed } from '@/utils/currency';
 
 function SuggestionThumbnail({ suggestion, hasImageError, onImageError }) {
   const imageUrl = suggestion.imageUrl || suggestion.thumbnail || '';
@@ -242,8 +243,27 @@ export default function SearchInput({
                       {suggestion.category}
                     </p>
                   </div>
+                  {suggestion.price != null && (
+                    <p
+                      className="shrink-0 whitespace-nowrap text-sm font-semibold"
+                      style={{ color: 'var(--text-primary)' }}
+                    >
+                      {formatCurrencyTrimmed(suggestion.price)}
+                    </p>
+                  )}
                 </li>
               ))}
+              <li role="presentation" className="border-t" style={{ borderColor: 'var(--border-color)' }}>
+                <button
+                  type="button"
+                  className="w-full px-4 py-2.5 text-center text-sm font-medium transition-opacity hover:opacity-70"
+                  style={{ color: 'var(--accent)' }}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => submitSearch(trimmedInput)}
+                >
+                  View all results &rarr;
+                </button>
+              </li>
             </ul>
           ) : (
             <p className="px-4 py-3 text-sm" style={{ color: 'var(--text-secondary)' }}>

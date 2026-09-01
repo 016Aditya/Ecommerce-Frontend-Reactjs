@@ -131,12 +131,15 @@ export const deleteProduct = async (id) => {
   return data;
 };
 
-// GET /api/products/suggestions?q=...
+// GET /api/products/search?keyword=...&page=0&size=6
+// Reuses the search endpoint (rather than /products/suggestions) because the
+// typeahead dropdown needs price, and the dedicated suggestions endpoint only
+// returns id/name/category/imageUrl.
 export const getProductSuggestions = async (q) => {
   const { data } = await api.get(
-    `${API_ENDPOINTS.PRODUCTS}/suggestions`,
+    `${API_ENDPOINTS.PRODUCTS}/search`,
     {
-      params: { q },
+      params: { keyword: q, page: 0, size: 6 },
     }
   );
   return unwrapList(data);
