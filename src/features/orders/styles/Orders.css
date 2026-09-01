@@ -542,7 +542,7 @@
   inset: 0;
   z-index: 1000;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
   padding: 24px 16px max(24px, env(safe-area-inset-bottom));
   background: rgba(3, 7, 18, 0.5);
@@ -561,7 +561,6 @@
     linear-gradient(180deg, rgba(17,24,39,0.98), rgba(10,15,26,0.98));
   color: var(--text-primary);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
-  transform: translateY(-6vh);
 }
 
 .odp-confirm-dialog__icon {
@@ -621,7 +620,6 @@
     width: 100%;
     padding: 18px;
     border-radius: 18px;
-    transform: none;
   }
 
   .odp-confirm-dialog__actions {
