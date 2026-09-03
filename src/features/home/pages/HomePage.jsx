@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import HeroBanner from '@/components/home/HeroBanner';
 import MobileHeroBanner from '@/components/home/MobileHeroBanner';
+import TrustBadges from '@/components/home/TrustBadges';
 import DealSection from '@/components/home/DealSection';
 import MobileCategories from '@/components/home/MobileCategories';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
+import PromoCTA from '@/components/home/PromoCTA';
 import SEO from '@/components/common/SEO';
 import { useSEO } from '@/hooks/useSEO';
 import { prefetchProductsPage } from '@/utils/prefetch';
@@ -27,9 +29,11 @@ function HomePage() {
       <SEO {...seoProps} />
       <div className="md:hidden"><MobileHeroBanner /></div>
       <div className="hidden md:block" style={{ marginBottom: '10px' }}><HeroBanner /></div>
+      <div className="hidden md:block"><TrustBadges /></div>
       <div className="hidden md:block"><DealSection /></div>
       <MobileCategories />
       <FeaturedProducts />
+      <div className="hidden md:block"><PromoCTA /></div>
     </main>
   );
 }
