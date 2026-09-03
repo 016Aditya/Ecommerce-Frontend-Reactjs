@@ -66,3 +66,28 @@ export function getStoredUserId() {
   const user = getStoredUser();
   return user?.id ?? null;
 }
+
+// ── Recent searches ───────────────────────────────────────────────────────────
+
+const MAX_RECENT_SEARCHES = 5;
+
+export function getRecentSearches() {
+  const stored = getItem(LOCAL_STORAGE_KEYS.RECENT_SEARCHES);
+  return Array.isArray(stored) ? stored : [];
+}
+
+export function addRecentSearch(term) {
+  const trimmed = term.trim();
+  if (!trimmed) return getRecentSearches();
+
+  const existing = getRecentSearches().filter(
+    (entry) => entry.toLowerCase() !== trimmed.toLowerCase()
+  );
+  const updated = [trimmed, ...existing].slice(0, MAX_RECENT_SEARCHES);
+  setItem(LOCAL_STORAGE_KEYS.RECENT_SEARCHES, updated);
+  return updated;
+}
+
+export function clearRecentSearches() {
+  removeItem(LOCAL_STORAGE_KEYS.RECENT_SEARCHES);
+}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFeaturedProducts } from '@/features/products/hooks/useFeaturedProducts';
 import { formatCurrencyTrimmed } from '@/utils/currency';
 import RatingBadge from '@/components/common/RatingBadge';
+import ProductCard from '@/features/products/components/ProductCard';
 import PATHS, { buildPath } from '@/routes/paths';
 
 function SkeletonCard() {
@@ -307,11 +308,20 @@ function FeaturedProducts() {
         ) : null}
 
         {!loading && !error && products.length > 0 ? (
-          <div className={gridClass}>
-            {products.map((product) => (
-              <FeaturedCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            {/* Mobile keeps the simplified "View Details" card, unchanged. */}
+            <div className={`md:hidden ${gridClass}`}>
+              {products.map((product) => (
+                <FeaturedCard key={product.id} product={product} />
+              ))}
+            </div>
+            {/* Desktop uses the real ProductCard — Add to Cart + wishlist. */}
+            <div className={`hidden md:grid ${gridClass}`}>
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </>
         ) : null}
       </div>
     </section>

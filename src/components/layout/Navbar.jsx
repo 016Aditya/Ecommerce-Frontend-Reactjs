@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import PATHS from "@/routes/paths";
+import { CATEGORY_GROUPS } from "@/constants/categoryTaxonomy";
 import { useCartQuery, useGuestCartCount } from "@/features/cart/hooks/useCart";
 import { useWishlistQuery } from "@/features/wishlist/hooks/useWishlist";
 import { getGuestWishlist } from "@/services/guestWishlistService";
@@ -96,6 +97,19 @@ function Navbar() {
   const [drawerVisible,     setDrawerVisible]     = useState(false);
   const [mobileSearchOpen,  setMobileSearchOpen]  = useState(false);
   const query = searchParams.get("search") || "";
+
+  // Desktop category bar dropdowns ("All Categories" mega menu + per-link
+  // dropdowns like Fashion). position:"fixed", computed from the trigger's
+  // own rect on hover — see the "DESKTOP CATEGORY BAR" comment below for why.
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(null);
+  const [categoryMenuPos,  setCategoryMenuPos]  = useState({ left: 0, top: 0 });
+
+  const openCategoryMenu = (id, triggerEl) => {
+    const rect = triggerEl?.getBoundingClientRect();
+    if (rect) setCategoryMenuPos({ left: rect.left, top: rect.bottom });
+    setCategoryMenuOpen(id);
+  };
+  const closeCategoryMenu = () => setCategoryMenuOpen(null);
 
   useEffect(() => {
     if (drawerOpen) {
@@ -545,22 +559,61 @@ function Navbar() {
         </>
       )}
 
-      {/* ══ DESKTOP CATEGORY BAR ══ */}
+      {/* ══ DESKTOP CATEGORY BAR ══
+          Dropdown panels use position:"fixed" (computed from the trigger's
+          getBoundingClientRect on hover) instead of CSS group-hover +
+          position:absolute. The row below needs overflowX:"auto" for
+          horizontal scroll on narrower desktop widths, but per the CSS
+          overflow spec that forces overflowY to compute as "auto" too —
+          silently clipping any dropdown that would render below the row.
+          position:"fixed" escapes that clipping entirely since it's
+          positioned against the viewport, not the scrolling ancestor. */}
       <div className="hidden md:block" style={{ backgroundColor:"color-mix(in srgb, var(--navbar-bg) 93%, white 6%)", borderBottom:"1px solid rgba(255,255,255,0.08)", boxShadow:"0 2px 6px rgba(0,0,0,0.15)" }}>
         <div className="container-app"
           style={{ display:"flex", alignItems:"center", overflowX:"auto", whiteSpace:"nowrap", scrollbarWidth:"none", msOverflowStyle:"none", gap:"7px", minHeight:"46px", maxWidth:"1344px" }}>
-          <Link to={PATHS.PRODUCTS}
-            style={{ display:"flex", flexShrink:0, alignItems:"center", gap:"6px", border:"1px solid transparent", padding:"10px 10px", fontSize:"14px", fontWeight:700, color:"#fff", textDecoration:"none", transition:"border-color 0.15s", borderRadius:"2px" }}
-            onMouseEnter={(e)=>(e.currentTarget.style.borderColor="#fff")}
-            onMouseLeave={(e)=>(e.currentTarget.style.borderColor="transparent")}>
-            <svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20" style={{ transform: "scale(0.98)" }}>
-              <path fillRule="evenodd" d="M3 5h14a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 4h14a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 4h14a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2z" clipRule="evenodd" />
-            </svg>
-            All
-          </Link>
+          <div
+            style={{ flexShrink:0 }}
+            onMouseEnter={(e)=>openCategoryMenu("all", e.currentTarget)}
+            onMouseLeave={closeCategoryMenu}>
+            <Link to={PATHS.PRODUCTS}
+              style={{ display:"flex", flexShrink:0, alignItems:"center", gap:"6px", border:"1px solid transparent", padding:"10px 10px", fontSize:"14px", fontWeight:700, color:"#fff", textDecoration:"none", transition:"border-color 0.15s", borderRadius:"2px" }}
+              onMouseEnter={(e)=>(e.currentTarget.style.borderColor="#fff")}
+              onMouseLeave={(e)=>(e.currentTarget.style.borderColor="transparent")}>
+              <svg width="15" height="15" fill="currentColor" viewBox="0 0 20 20" style={{ transform: "scale(0.98)" }}>
+                <path fillRule="evenodd" d="M3 5h14a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 4h14a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2zm0 4h14a1 1 0 0 1 0 2H3a1 1 0 0 1 0-2z" clipRule="evenodd" />
+              </svg>
+              All Categories
+            </Link>
+            {categoryMenuOpen === "all" && (
+              <div className="grid"
+                style={{ position:"fixed", left: categoryMenuPos.left, top: categoryMenuPos.top, gridTemplateColumns:"repeat(4, 180px)", gap:"0", backgroundColor:"var(--modal-bg,#fff)", border:"1px solid var(--border-color,#ddd)", borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,0,0.18)", zIndex:9999 }}>
+                {CATEGORY_GROUPS.map((group, i) => (
+                  <div key={group.title} style={{ padding:"14px 16px", borderLeft: i > 0 ? "1px solid var(--border-color,#eee)" : "none" }}>
+                    <Link to={group.link}
+                      style={{ display:"block", marginBottom:"8px", fontSize:"13px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.02em", color:"var(--text-primary)", textDecoration:"none" }}
+                      onMouseEnter={(e)=>e.currentTarget.style.color="var(--accent,#ff9f00)"}
+                      onMouseLeave={(e)=>e.currentTarget.style.color="var(--text-primary)"}>
+                      {group.title}
+                    </Link>
+                    {group.items.map((item) => (
+                      <Link key={item.label} to={item.link}
+                        style={{ display:"block", padding:"6px 0", fontSize:"13.5px", color:"var(--text-secondary)", textDecoration:"none" }}
+                        onMouseEnter={(e)=>e.currentTarget.style.color="var(--text-primary)"}
+                        onMouseLeave={(e)=>e.currentTarget.style.color="var(--text-secondary)"}>
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
           {NAV_LINKS.map((link) =>
             link.dropdown ? (
-              <div key={link.label} className="group" style={{ position:"relative", flexShrink:0 }}>
+              <div key={link.label}
+                style={{ flexShrink:0 }}
+                onMouseEnter={(e)=>openCategoryMenu(link.label, e.currentTarget)}
+                onMouseLeave={closeCategoryMenu}>
                 <Link to={link.path}
                   style={{ display:"flex", alignItems:"center", gap:"4px", border:"1px solid transparent", padding:"10px 10px", fontSize:"14.5px", fontWeight:600, color:"#fff", textDecoration:"none", transition:"border-color 0.15s", borderRadius:"2px" }}
                   onMouseEnter={(e)=>e.currentTarget.style.borderColor="#fff"}
@@ -570,16 +623,17 @@ function Navbar() {
                     <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
                   </svg>
                 </Link>
-                <div className="hidden group-hover:block"
-                  style={{ position:"absolute", top:"100%", left:0, minWidth:"160px", backgroundColor:"var(--modal-bg,#fff)", border:"1px solid var(--border-color,#ddd)", borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,0,0.18)", zIndex:9999 }}>
-                  {link.dropdown.map((item) => (
-                    <Link key={item.label}
-                      to={item.sub ? `${PATHS.PRODUCTS}?category=Clothing&subcategory=${item.sub}` : `${PATHS.PRODUCTS}?category=Clothing`}
-                      style={{ display:"block", padding:"9px 16px", fontSize:"14px", color:"var(--text-primary)", textDecoration:"none" }}
-                      onMouseEnter={(e)=>e.currentTarget.style.background="var(--hover-bg)"}
-                      onMouseLeave={(e)=>e.currentTarget.style.background=""}>{item.label}</Link>
-                  ))}
-                </div>
+                {categoryMenuOpen === link.label && (
+                  <div style={{ position:"fixed", left: categoryMenuPos.left, top: categoryMenuPos.top, minWidth:"160px", backgroundColor:"var(--modal-bg,#fff)", border:"1px solid var(--border-color,#ddd)", borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,0,0.18)", zIndex:9999 }}>
+                    {link.dropdown.map((item) => (
+                      <Link key={item.label}
+                        to={item.sub ? `${PATHS.PRODUCTS}?category=Clothing&subcategory=${item.sub}` : `${PATHS.PRODUCTS}?category=Clothing`}
+                        style={{ display:"block", padding:"9px 16px", fontSize:"14px", color:"var(--text-primary)", textDecoration:"none" }}
+                        onMouseEnter={(e)=>e.currentTarget.style.background="var(--hover-bg)"}
+                        onMouseLeave={(e)=>e.currentTarget.style.background=""}>{item.label}</Link>
+                    ))}
+                  </div>
+                )}
               </div>
             ) : (
               <Link key={link.label} to={link.path}

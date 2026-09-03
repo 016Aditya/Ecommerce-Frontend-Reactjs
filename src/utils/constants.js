@@ -13,6 +13,7 @@ export const USER_ROLES = {
 
 export const LOCAL_STORAGE_KEYS = {
   USER: "user",
+  RECENT_SEARCHES: "recent_searches",
 };
 
 // Order statuses - must match your backend Order entity exactly

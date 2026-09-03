@@ -40,6 +40,7 @@ function Footer({ mobile = false }) {
           <div className={mobile ? 'mobile-footer__section' : undefined}>
             <h4 className={headingClass}>Help</h4>
             <ul className={linkListClass}>
+              <li><Link to={PATHS.ORDERS} className="hover:text-white transition">Track Order</Link></li>
               <li><Link to={PATHS.CUSTOMER_SERVICE} className="hover:text-white transition">Payments</Link></li>
               <li><Link to={PATHS.CUSTOMER_SERVICE} className="hover:text-white transition">Shipping</Link></li>
               <li><Link to={PATHS.CUSTOMER_SERVICE} className="hover:text-white transition">Returns</Link></li>
