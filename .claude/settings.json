@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node _tmp_final2.cjs)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}
