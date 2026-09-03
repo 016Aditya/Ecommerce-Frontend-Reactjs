@@ -3,7 +3,6 @@ import HeroBanner from '@/components/home/HeroBanner';
 import MobileHeroBanner from '@/components/home/MobileHeroBanner';
 import TrustBadges from '@/components/home/TrustBadges';
 import DealSection from '@/components/home/DealSection';
-import TodaysDeals from '@/components/home/TodaysDeals';
 import MobileCategories from '@/components/home/MobileCategories';
 import FeaturedProducts from '@/components/home/FeaturedProducts';
 import TopRated from '@/components/home/TopRated';
@@ -31,15 +30,14 @@ function HomePage() {
     <main className="min-h-screen" style={{ backgroundColor: 'var(--bg-primary)' }}>
       <SEO {...seoProps} />
       <div className="md:hidden"><MobileHeroBanner /></div>
-      <div className="hidden md:block" style={{ marginBottom: '10px' }}><HeroBanner /></div>
+      <div className="hidden md:block" style={{ marginBottom: '20px' }}><HeroBanner /></div>
       <div className="hidden md:block"><TrustBadges /></div>
       <div className="hidden md:block"><DealSection /></div>
-      <div className="hidden md:block"><TodaysDeals /></div>
       <MobileCategories />
       <FeaturedProducts />
-      <div className="hidden md:block"><TopRated /></div>
-      <div className="hidden md:block"><WhyShopWithUs /></div>
-      <div className="hidden md:block"><PromoCTA /></div>
+      <div className="hidden md:block" style={{ marginTop: '16px' }}><TopRated /></div>
+      <div className="hidden md:block" style={{ marginTop: '35px' }}><WhyShopWithUs /></div>
+      <div className="hidden md:block" style={{ marginTop: '16px' }}><PromoCTA /></div>
     </main>
   );
 }

@@ -3,12 +3,12 @@ import { useTopRated } from '@/features/home/hooks/useTopRated';
 import ProductRail from './ProductRail';
 
 function TopRated() {
-  const { products, loading, error } = useTopRated(8);
+  const { products, loading, error } = useTopRated(4);
 
   return (
     <ProductRail
       title="Top Rated"
-      subtitle="Highest-rated products, chosen by shoppers."
+      subtitle="Highest-rated products from customer reviews."
       products={products}
       loading={loading}
       error={error}

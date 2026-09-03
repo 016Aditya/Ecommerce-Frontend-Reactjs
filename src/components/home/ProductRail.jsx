@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import ProductCard from '@/features/products/components/ProductCard';
+import HomeProductCard from './HomeProductCard';
 
 function SkeletonCard() {
   return (
@@ -8,7 +8,7 @@ function SkeletonCard() {
       style={{
         backgroundColor: 'var(--card-bg)',
         border: '1px solid var(--border-color)',
-        borderRadius: '18px',
+        borderRadius: '14px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
       }}
     >
@@ -35,11 +35,12 @@ function SkeletonCard() {
 /**
  * Shared desktop merchandising rail — used by TodaysDeals and TopRated.
  * Same gradient shell / header / grid chrome as FeaturedProducts, but
- * renders the real ProductCard (Add to Cart + wishlist) instead of the
- * simplified homepage-only card.
+ * renders HomeProductCard (Add to Cart + wishlist, simplified metadata) —
+ * a homepage-only card, kept separate from the fuller ProductCard used on
+ * /products.
  */
 function ProductRail({ title, subtitle, products, loading, error, browseAllPath, emptyMessage }) {
-  const gridClass = 'grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
+  const gridClass = 'grid grid-cols-2 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
 
   return (
     <section
@@ -125,7 +126,7 @@ function ProductRail({ title, subtitle, products, loading, error, browseAllPath,
         {!loading && !error && products.length > 0 ? (
           <div className={gridClass}>
             {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <HomeProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : null}

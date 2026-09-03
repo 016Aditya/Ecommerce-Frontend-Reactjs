@@ -10,10 +10,16 @@ export const productPath = (category, subcategory) => {
 // Navbar "All" mega menu. Deliberately NOT used by MobileCategories.jsx —
 // that component keeps its own inline copy so the mobile carousel stays
 // completely untouched by any change here.
+//
+// `subtitle`/`cta` are deliberately navigational ("what's in here"), not
+// promotional ("up to X% off") — a category is permanent, a promotion is
+// temporary, and the tiles shouldn't imply an active sale that may not
+// exist.
 export const CATEGORY_GROUPS = [
   {
     title: 'Electronics',
-    subtitle: 'Up to 60% off',
+    subtitle: "Mobiles, laptops & gadgets",
+    cta: 'Explore Electronics',
     category: 'Electronics',
     heroImage: '/images/electronics-hero-promo.webp',
     link: productPath('Electronics'),
@@ -26,7 +32,8 @@ export const CATEGORY_GROUPS = [
   },
   {
     title: 'Fashion',
-    subtitle: 'Min. 40% off',
+    subtitle: "Men's, women's & footwear",
+    cta: 'Explore Fashion',
     category: 'Clothing',
     heroImage: '/images/fashion-hero-promo.webp',
     link: productPath('Clothing'),
@@ -38,8 +45,9 @@ export const CATEGORY_GROUPS = [
     ],
   },
   {
-    title: 'Home & Kitchen',
-    subtitle: 'Starting ₹199',
+    title: 'Home & Living',
+    subtitle: 'Furniture, kitchen & decor',
+    cta: 'Explore Home',
     category: 'Home',
     heroImage: '/images/home-hero-promo.webp',
     link: productPath('Home'),
@@ -51,8 +59,9 @@ export const CATEGORY_GROUPS = [
     ],
   },
   {
-    title: 'Books & Sports',
-    subtitle: 'Deals from ₹99',
+    title: 'Books & More',
+    subtitle: 'Books, sports & entertainment',
+    cta: 'Explore Books & More',
     category: 'Books',
     heroImage: '/images/books-hero-promo.webp',
     link: productPath('Books'),

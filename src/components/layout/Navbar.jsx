@@ -33,6 +33,10 @@ const NAV_LINKS = [
   { label: "Customer Service", path: PATHS.CUSTOMER_SERVICE, dropdown: null },
 ];
 
+// Desktop category bar only — see the usage site for why "Today's Deals"
+// is filtered out here but not from NAV_LINKS itself (mobile still uses it).
+const DESKTOP_NAV_LINKS = NAV_LINKS.filter((link) => link.label !== "Today's Deals");
+
 const MORE_CATS = [
   { label: "Today's Deal",   path: PATHS.PRODUCTS },
   { label: "Electronics",    path: `${PATHS.PRODUCTS}?category=Electronics` },
@@ -608,7 +612,12 @@ function Navbar() {
               </div>
             )}
           </div>
-          {NAV_LINKS.map((link) =>
+          {/* "Today's Deals" is dropped from the desktop bar only — it
+              currently points at plain /products, the same destination as
+              every other link, so it's a dead-end nav item until there's a
+              real deals page. Mobile's Row 3 pills still use the full
+              NAV_LINKS list untouched. */}
+          {DESKTOP_NAV_LINKS.map((link) =>
             link.dropdown ? (
               <div key={link.label}
                 style={{ flexShrink:0 }}

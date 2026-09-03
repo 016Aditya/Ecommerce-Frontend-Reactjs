@@ -56,11 +56,9 @@ function TrustBadges() {
       <div
         className="grid grid-cols-2 sm:grid-cols-4"
         style={{
-          backgroundColor: 'var(--card-bg)',
-          border: '1px solid var(--border-color)',
-          borderRadius: '16px',
-          boxShadow: 'var(--shadow-sm)',
-          padding: '18px',
+          borderTop: '1px solid var(--border-color)',
+          borderBottom: '1px solid var(--border-color)',
+          paddingBlock: '14px',
           gap: '16px',
         }}
       >
@@ -68,28 +66,16 @@ function TrustBadges() {
           <div
             key={badge.title}
             className="flex items-center"
-            style={{ gap: '12px', minWidth: 0 }}
+            style={{ gap: '10px', minWidth: 0 }}
           >
-            <div
-              style={{
-                display: 'grid',
-                placeItems: 'center',
-                width: '44px',
-                height: '44px',
-                minWidth: '44px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--accent-subtle)',
-                color: 'var(--accent)',
-              }}
-              aria-hidden="true"
-            >
-              <div style={{ width: '22px', height: '22px' }}>{badge.icon}</div>
+            <div style={{ color: 'var(--accent)', flexShrink: 0 }} aria-hidden="true">
+              <div style={{ width: '19px', height: '19px' }}>{badge.icon}</div>
             </div>
             <div style={{ minWidth: 0 }}>
               <p
                 style={{
                   color: 'var(--text-primary)',
-                  fontSize: '13.5px',
+                  fontSize: '13px',
                   fontWeight: 700,
                   lineHeight: 1.25,
                 }}
@@ -100,7 +86,7 @@ function TrustBadges() {
                 className="text-truncate-mobile"
                 style={{
                   color: 'var(--text-secondary)',
-                  fontSize: '12px',
+                  fontSize: '11.5px',
                   lineHeight: 1.3,
                   marginTop: '1px',
                 }}

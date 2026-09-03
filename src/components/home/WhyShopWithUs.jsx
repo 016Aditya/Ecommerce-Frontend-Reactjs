@@ -70,38 +70,26 @@ function WhyShopWithUs() {
         The details that make ordering here easy to trust.
       </p>
 
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div
+        className="grid grid-cols-2 gap-x-6 gap-y-5 lg:grid-cols-4"
+        style={{
+          borderTop: '1px solid var(--border-color)',
+          paddingTop: '20px',
+        }}
+      >
         {REASONS.map((reason) => (
-          <div
-            key={reason.title}
-            style={{
-              backgroundColor: 'var(--card-bg)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '14px',
-              padding: '20px',
-            }}
-          >
-            <div
-              style={{
-                display: 'grid',
-                placeItems: 'center',
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                backgroundColor: 'var(--accent-subtle)',
-                color: 'var(--accent)',
-                marginBottom: '14px',
-              }}
-              aria-hidden="true"
-            >
-              <div style={{ width: '22px', height: '22px' }}>{reason.icon}</div>
+          <div key={reason.title} className="flex items-start" style={{ gap: '10px' }}>
+            <div style={{ color: 'var(--accent)', flexShrink: 0, marginTop: '2px' }} aria-hidden="true">
+              <div style={{ width: '18px', height: '18px' }}>{reason.icon}</div>
             </div>
-            <h3 style={{ color: 'var(--text-primary)', fontSize: '15.5px', fontWeight: 700, marginBottom: '6px' }}>
-              {reason.title}
-            </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '13px', lineHeight: 1.5 }}>
-              {reason.body}
-            </p>
+            <div>
+              <h3 style={{ color: 'var(--text-primary)', fontSize: '14px', fontWeight: 700, marginBottom: '2px' }}>
+                {reason.title}
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '12.5px', lineHeight: 1.5 }}>
+                {reason.body}
+              </p>
+            </div>
           </div>
         ))}
       </div>

@@ -9,7 +9,8 @@ function DealSection() {
         width: "100%",
         maxWidth: "calc(100% - 48px)",
         marginInline: "auto",
-        paddingBlock: "1.5rem",
+        paddingTop: "1.5rem",
+        paddingBottom: "2.5rem",
       }}
     >
       <h2
@@ -17,7 +18,7 @@ function DealSection() {
           color: "var(--text-primary)",
           fontSize: "22px",
           fontWeight: 700,
-          marginBottom: "13px",
+          marginBottom: "20px",
         }}
       >
         Shop by Category
@@ -66,7 +67,7 @@ function DealSection() {
                 className="inline-flex shrink-0 items-center gap-1 transition-transform group-hover:translate-x-0.5"
                 style={{ color: "#fff", fontSize: "13.5px", fontWeight: 700, whiteSpace: "nowrap" }}
               >
-                Explore
+                {group.cta}
                 <span aria-hidden="true">→</span>
               </span>
             </div>

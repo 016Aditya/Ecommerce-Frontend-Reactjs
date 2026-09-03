@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useFeaturedProducts } from '@/features/products/hooks/useFeaturedProducts';
 import { formatCurrencyTrimmed } from '@/utils/currency';
 import RatingBadge from '@/components/common/RatingBadge';
-import ProductCard from '@/features/products/components/ProductCard';
+import HomeProductCard from './HomeProductCard';
 import PATHS, { buildPath } from '@/routes/paths';
 
 function SkeletonCard() {
@@ -215,7 +215,10 @@ function FeaturedProducts() {
   const navigate = useNavigate();
 
   const gridClass =
-    'grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5';
+    'grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4';
+  // Desktop shows a capped, two-row set (8 products); mobile is untouched
+  // and keeps showing the full fetched list via its own branch below.
+  const desktopProducts = products.slice(0, 8);
 
   return (
     <section
@@ -254,7 +257,7 @@ function FeaturedProducts() {
               className="mt-1.5 featured-section__subtitle"
               style={{ color: 'var(--text-secondary)', fontSize: '13.5px' }}
             >
-              Discover our most popular and trending products.
+              Featured products and trending picks.
             </p>
           </div>
           <button
@@ -315,10 +318,10 @@ function FeaturedProducts() {
                 <FeaturedCard key={product.id} product={product} />
               ))}
             </div>
-            {/* Desktop uses the real ProductCard — Add to Cart + wishlist. */}
+            {/* Desktop: simplified HomeProductCard, capped to 2 rows of 4. */}
             <div className={`hidden md:grid ${gridClass}`}>
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
+              {desktopProducts.map((product) => (
+                <HomeProductCard key={product.id} product={product} />
               ))}
             </div>
           </>
