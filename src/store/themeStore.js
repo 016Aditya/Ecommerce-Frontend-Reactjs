@@ -2,7 +2,10 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 const STORAGE_KEY = "theme-preference";
-const DEFAULT_THEME = "light";
+// First-time visitors (no stored preference) get dark by default — see
+// the matching inline script in index.html, which must stay in sync with
+// this value to avoid a flash of the wrong theme on first paint.
+const DEFAULT_THEME = "dark";
 
 /** Read the theme synchronously from localStorage (runs before React renders). */
 const getStoredTheme = () => {

@@ -9,7 +9,7 @@
     <meta name="keywords" content="fashion, clothing, electronics, shopping, online store, deals" />
     <meta name="author" content="Shop Fashion" />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#f4f6f8" />
+    <meta name="theme-color" content="#0f1115" />
     
     <!-- Open Graph Tags -->
     <meta property="og:type" content="website" />
@@ -82,14 +82,15 @@
         var DEFAULT_BG_LIGHT = '#f4f6f8';
         var DEFAULT_BG_DARK  = '#0f1115';
 
-        var theme = 'light';
+        // Dark is the default for first-time visitors (no stored preference
+        // yet) — intentionally not tied to prefers-color-scheme. A stored
+        // preference (light or dark, set via the toggle) always wins.
+        var theme = 'dark';
         try {
           var raw = localStorage.getItem(STORAGE_KEY);
           if (raw) {
             var parsed = JSON.parse(raw);
-            theme = (parsed && parsed.state && parsed.state.theme) || 'light';
-          } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            theme = 'dark';
+            theme = (parsed && parsed.state && parsed.state.theme) || 'dark';
           }
         } catch (e) { /* ignore */ }
 

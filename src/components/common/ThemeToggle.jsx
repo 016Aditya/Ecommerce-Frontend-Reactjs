@@ -10,7 +10,7 @@ const ThemeToggle = () => {
     (typeof document !== "undefined"
       ? document.documentElement.getAttribute("data-theme")
       : null) ??
-    "light";
+    "dark";
 
   const isDark = resolvedTheme === "dark";
 

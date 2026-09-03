@@ -205,59 +205,61 @@
   --status-cancelled-bg:  #450a0a; --status-cancelled-text:  #f87171;
 }
 
-/* ── System preference (no explicit user choice) ───────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    color-scheme: dark;
-    --bg-primary:       #0f0f11;
-    --bg-secondary:     #1a1a1f;
-    --bg-tertiary:      #141418;
-    --text-primary:     #f1f1f3;
-    --text-secondary:   #a1a1aa;
-    --text-tertiary:    #52525b;
-    --text-inverse:     #0f0f11;
-    --border-color:     #27272a;
-    --border-subtle:    #18181b;
-    --card-bg:          #1a1a1f;
-    --hover-bg:         #2a2f38;
-    /* ── Navbar lighter than page bg for contrast ── */
-    --navbar-bg:        #171a22;
-    --footer-bg:        #0a0a0c;
-    --footer-text:      #9ca3af;
-    --input-bg:         #1e1e24;
-    --input-border:     #3f3f46;
-    --input-focus:      #ff9f00;
-    --input-placeholder:#52525b;
-    --button-primary:       #ff9f00;
-    --button-primary-hover: #e08e00;
-    --button-primary-text:  #0f0f11;
-    --badge-bg:         #27272a;
-    --badge-text:       #d4d4d8;
-    --featured-shell-start: #171c24;
-    --featured-shell-end:   #0f172a;
-    --featured-image-start: #1e293b;
-    --featured-image-end:   #0f172a;
-    --featured-image-blend: normal;
-    --overlay-bg:       rgba(0,0,0,0.72);
-    --modal-bg:         #1a1a1f;
-    --shadow-sm:  0 1px 2px  rgba(0,0,0,0.3);
-    --shadow-md:  0 4px 12px rgba(0,0,0,0.45);
-    --shadow-lg:  0 12px 32px rgba(0,0,0,0.6);
-    --accent:           #ff9f00;
-    --accent-hover:     #e08e00;
-    --accent-text:      #0f0f11;
-    --accent-subtle:    #1c1207;
-    --accent-border:    #78350f;
-    --success-bg:   #052e16; --success-text:  #4ade80; --success-border: #166534;
-    --error-bg:     #450a0a; --error-text:    #f87171; --error-border:   #991b1b;
-    --warning-bg:   #431407; --warning-text:  #fbbf24; --warning-border: #92400e;
-    --info-bg:      #0c1a3d; --info-text:     #60a5fa; --info-border:    #1d4ed8;
-    /* ── Category bar: distinct tier from navbar ── */
-    --navbar-secondary-bg: #20242c;
-    --status-pending-bg:    #292107; --status-pending-text:    #fbbf24;
-    --status-processing-bg: #0c1a3d; --status-processing-text: #60a5fa;
-    --status-shipped-bg:    #1a1042; --status-shipped-text:    #a5b4fc;
-    --status-delivered-bg:  #022c1a; --status-delivered-text:  #34d399;
-    --status-cancelled-bg:  #450a0a; --status-cancelled-text:  #f87171;
-  }
+/* ── No-JS fallback (data-theme attribute never got set) ─────────────────
+   Defaults to dark, matching the app's default — not tied to OS
+   prefers-color-scheme, since the product default is dark regardless of
+   system setting. In normal operation the inline script in index.html
+   always sets data-theme before first paint, so this rarely applies. */
+:root:not([data-theme]) {
+  color-scheme: dark;
+  --bg-primary:       #0f0f11;
+  --bg-secondary:     #1a1a1f;
+  --bg-tertiary:      #141418;
+  --text-primary:     #f1f1f3;
+  --text-secondary:   #a1a1aa;
+  --text-tertiary:    #52525b;
+  --text-inverse:     #0f0f11;
+  --border-color:     #27272a;
+  --border-subtle:    #18181b;
+  --card-bg:          #1a1a1f;
+  --hover-bg:         #2a2f38;
+  /* ── Navbar lighter than page bg for contrast ── */
+  --navbar-bg:        #171a22;
+  --footer-bg:        #0a0a0c;
+  --footer-text:      #9ca3af;
+  --input-bg:         #1e1e24;
+  --input-border:     #3f3f46;
+  --input-focus:      #ff9f00;
+  --input-placeholder:#52525b;
+  --button-primary:       #ff9f00;
+  --button-primary-hover: #e08e00;
+  --button-primary-text:  #0f0f11;
+  --badge-bg:         #27272a;
+  --badge-text:       #d4d4d8;
+  --featured-shell-start: #171c24;
+  --featured-shell-end:   #0f172a;
+  --featured-image-start: #1e293b;
+  --featured-image-end:   #0f172a;
+  --featured-image-blend: normal;
+  --overlay-bg:       rgba(0,0,0,0.72);
+  --modal-bg:         #1a1a1f;
+  --shadow-sm:  0 1px 2px  rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 12px rgba(0,0,0,0.45);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.6);
+  --accent:           #ff9f00;
+  --accent-hover:     #e08e00;
+  --accent-text:      #0f0f11;
+  --accent-subtle:    #1c1207;
+  --accent-border:    #78350f;
+  --success-bg:   #052e16; --success-text:  #4ade80; --success-border: #166534;
+  --error-bg:     #450a0a; --error-text:    #f87171; --error-border:   #991b1b;
+  --warning-bg:   #431407; --warning-text:  #fbbf24; --warning-border: #92400e;
+  --info-bg:      #0c1a3d; --info-text:     #60a5fa; --info-border:    #1d4ed8;
+  /* ── Category bar: distinct tier from navbar ── */
+  --navbar-secondary-bg: #20242c;
+  --status-pending-bg:    #292107; --status-pending-text:    #fbbf24;
+  --status-processing-bg: #0c1a3d; --status-processing-text: #60a5fa;
+  --status-shipped-bg:    #1a1042; --status-shipped-text:    #a5b4fc;
+  --status-delivered-bg:  #022c1a; --status-delivered-text:  #34d399;
+  --status-cancelled-bg:  #450a0a; --status-cancelled-text:  #f87171;
 }
