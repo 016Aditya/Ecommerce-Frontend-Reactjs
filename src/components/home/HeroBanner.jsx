@@ -83,7 +83,7 @@ function HeroBanner() {
       >
         {slide.isFullImage ? (
           /* Full Image Banner View with Aspect Ratio maintained */
-          <div className="w-full max-w-[1400px] aspect-192/85 max-h-111.75 flex items-center justify-center">
+          <div className="w-full max-w-[1400px] aspect-768/323 max-h-[424.65px] flex items-center justify-center">
             <img
               src={slide.imageSrc}
               alt={`${slide.category} Sale Promo`}
