@@ -180,7 +180,7 @@ function Navbar() {
 
       {/* ══ DESKTOP PRIMARY BAR ══ */}
       <div className="hidden md:block" style={{ backgroundColor: "var(--navbar-bg)", minHeight: "74px" }}>
-        <div style={{ maxWidth:"1282px", margin:"0 auto", padding:"2px 19px", minHeight:"74px", display:"flex", alignItems:"center", gap:"11px" }}>
+        <div style={{ maxWidth:"1346px", margin:"0 auto", padding:"2px 19px", minHeight:"74px", display:"flex", alignItems:"center", gap:"11px" }}>
           <Link to={PATHS.HOME} aria-label="ShopApp Home"
             style={{ ...navItemBase, flexDirection:"column", alignItems:"flex-start", padding:"4px 7px 4px 13px", minWidth:"150px", flexShrink:0 }}
             onMouseEnter={(e)=>(e.currentTarget.style.borderColor="#fff")}
@@ -281,7 +281,7 @@ function Navbar() {
       <div className="md:hidden" style={{ backgroundColor: "var(--navbar-bg)" }}>
 
         {/* Row 1: Hamburger · Logo · spacer · Account · Cart · ThemeToggle */}
-        <div style={{ display:"flex", alignItems:"center", padding:"10px 12px 8px", gap:"8px" }}>
+        <div style={{ display:"flex", alignItems:"center", padding:"10.5px 12px 8.4px", gap:"8px" }}>
           <button aria-label="Open menu" onClick={()=> mobileMenuOpen ? closeMobileMenu() : setMobileMenuOpen(true)}
             style={{ background:"none", border:"none", cursor:"pointer", padding:"4px", flexShrink:0, display:"flex", alignItems:"center" }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round">
@@ -312,7 +312,7 @@ function Navbar() {
               </svg>
             </Link>
           )}
-          <Link to={PATHS.CART} aria-label="Cart" style={{ position:"relative", display:"flex", alignItems:"center", textDecoration:"none", flexShrink:0 }}>
+          <Link to={PATHS.CART} aria-label="Cart" style={{ position:"relative", display:"flex", alignItems:"center", textDecoration:"none", flexShrink:0, marginLeft:"1%" }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
               <path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
             </svg>
@@ -322,7 +322,9 @@ function Navbar() {
               </span>
             )}
           </Link>
-          <ThemeToggle />
+          <div style={{ marginLeft:"1%", display:"flex", alignItems:"center", flexShrink:0 }}>
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* Row 2: Search */}
@@ -391,9 +393,16 @@ function Navbar() {
           }}>
             <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px", backgroundColor:"var(--navbar-bg)", marginBottom:"8px" }}>
               <div style={{ display:"flex", flexDirection:"column", gap:"2px", minWidth:0 }}>
-                <span style={{ fontSize:"16px", fontWeight:700, color:"#fff" }}>
-                  {user ? `Hello, ${displayName}` : "Hello, Sign In"}
-                </span>
+                {user ? (
+                  <span style={{ fontSize:"16px", fontWeight:700, color:"#fff" }}>
+                    Hello, {displayName}
+                  </span>
+                ) : (
+                  <Link to={PATHS.LOGIN} onClick={closeMobileMenu}
+                    style={{ fontSize:"16px", fontWeight:700, color:"#fff", textDecoration:"none", width:"fit-content" }}>
+                    Hello, Sign In
+                  </Link>
+                )}
                 {user && (
                   <Link to={PATHS.PROFILE} onClick={closeMobileMenu}
                     style={{ fontSize:"12px", color:"var(--text-secondary, #94a3b8)", textDecoration:"none", width:"fit-content" }}>
@@ -539,7 +548,7 @@ function Navbar() {
       {/* ══ DESKTOP CATEGORY BAR ══ */}
       <div className="hidden md:block" style={{ backgroundColor:"color-mix(in srgb, var(--navbar-bg) 93%, white 6%)", borderBottom:"1px solid rgba(255,255,255,0.08)", boxShadow:"0 2px 6px rgba(0,0,0,0.15)" }}>
         <div className="container-app"
-          style={{ display:"flex", alignItems:"center", overflowX:"auto", whiteSpace:"nowrap", scrollbarWidth:"none", msOverflowStyle:"none", gap:"7px", minHeight:"46px" }}>
+          style={{ display:"flex", alignItems:"center", overflowX:"auto", whiteSpace:"nowrap", scrollbarWidth:"none", msOverflowStyle:"none", gap:"7px", minHeight:"46px", maxWidth:"1344px" }}>
           <Link to={PATHS.PRODUCTS}
             style={{ display:"flex", flexShrink:0, alignItems:"center", gap:"6px", border:"1px solid transparent", padding:"10px 10px", fontSize:"14px", fontWeight:700, color:"#fff", textDecoration:"none", transition:"border-color 0.15s", borderRadius:"2px" }}
             onMouseEnter={(e)=>(e.currentTarget.style.borderColor="#fff")}
