@@ -22,6 +22,11 @@ export const CATEGORY_GROUPS = [
     cta: 'Explore Electronics',
     category: 'Electronics',
     heroImage: '/images/electronics-hero-promo.webp',
+    // Only this banner has "Sale / Up to 60% off" baked into the image
+    // itself (pixels, not editable via code) — the other three read fine
+    // as permanent headlines. Zoomed + anchored right to crop the
+    // promotional text block out of frame, keeping just the product shot.
+    imageCrop: { transform: 'scale(1.8)', transformOrigin: 'right center' },
     link: productPath('Electronics'),
     items: [
       { label: 'Mobiles',   link: productPath('Electronics', 'Mobile') },

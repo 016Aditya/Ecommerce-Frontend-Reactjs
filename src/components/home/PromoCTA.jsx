@@ -8,23 +8,23 @@ function PromoCTA() {
         width: '100%',
         maxWidth: 'calc(100% - 48px)',
         marginInline: 'auto',
-        paddingBlock: '8px 28px',
+        paddingBlock: '6px 22px',
       }}
     >
       <div
-        className="flex flex-col items-center text-center gap-3 sm:flex-row sm:items-center sm:text-left sm:justify-between"
+        className="flex flex-col items-center text-center gap-2.5 sm:flex-row sm:items-center sm:text-left sm:justify-between"
         style={{
-          borderRadius: '12px',
-          padding: '18px 22px',
+          borderRadius: '10px',
+          padding: '13px 18px',
           backgroundColor: 'var(--card-bg)',
           border: '1px solid var(--border-color)',
         }}
       >
         <div>
-          <h2 style={{ color: 'var(--text-primary)', fontSize: '16px', fontWeight: 700 }}>
+          <h2 style={{ color: 'var(--text-primary)', fontSize: '14.5px', fontWeight: 700 }}>
             Can't find what you're looking for?
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '13px', marginTop: '2px' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12.5px', marginTop: '1px' }}>
             Browse our complete product catalogue.
           </p>
         </div>
@@ -35,10 +35,10 @@ function PromoCTA() {
           style={{
             backgroundColor: 'var(--accent)',
             color: 'var(--accent-text)',
-            fontSize: '13.5px',
+            fontSize: '13px',
             fontWeight: 700,
-            borderRadius: '8px',
-            padding: '9px 18px',
+            borderRadius: '7px',
+            padding: '8px 16px',
           }}
         >
           View All Products

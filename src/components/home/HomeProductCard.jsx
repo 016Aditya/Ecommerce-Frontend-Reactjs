@@ -172,12 +172,12 @@ const HomeProductCard = memo(({ product }) => {
 
         <RatingBadge rating={product.averageRating || 0} count={product.reviewCount || 0} size="sm" />
 
-        <div className="mt-0.5 flex flex-wrap items-baseline gap-1.5">
-          <span style={{ fontSize: '17px', fontWeight: 800, color: '#22c55e' }}>
+        <div className="mt-0.5 flex flex-nowrap items-baseline gap-1.5 overflow-hidden">
+          <span className="shrink-0" style={{ fontSize: '17px', fontWeight: 800, color: '#22c55e' }}>
             {formatCurrencyTrimmed(product.price)}
           </span>
           {discount ? (
-            <span className="line-through" style={{ fontSize: '11.5px', color: 'var(--text-tertiary)' }}>
+            <span className="truncate line-through" style={{ fontSize: '11.5px', color: 'var(--text-tertiary)' }}>
               {formatCurrencyTrimmed(product.originalPrice)}
             </span>
           ) : null}
@@ -189,7 +189,7 @@ const HomeProductCard = memo(({ product }) => {
 
         <button
           type="button"
-          className="mt-1.5 w-full rounded-md text-xs font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed"
+          className="mt-auto w-full rounded-md text-xs font-semibold transition-opacity hover:opacity-90 disabled:cursor-not-allowed"
           style={{ minHeight: '32px', ...buttonStyle() }}
           onClick={handleAddToCart}
           disabled={buttonDisabled}

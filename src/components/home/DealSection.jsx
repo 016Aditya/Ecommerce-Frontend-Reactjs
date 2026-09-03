@@ -42,7 +42,8 @@ function DealSection() {
               src={group.heroImage}
               alt=""
               aria-hidden="true"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+              className={`absolute inset-0 h-full w-full object-cover ${group.imageCrop ? '' : 'transition-transform duration-300 group-hover:scale-[1.04]'}`}
+              style={group.imageCrop}
               loading="lazy"
               draggable={false}
             />
