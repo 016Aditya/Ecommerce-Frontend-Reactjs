@@ -6,7 +6,7 @@
  * an infinite /login bounce when Zustand state settled after commit.
  */
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import Button from "@/components/common/Button";
 import Input from "@/components/common/Input";
 import TurnstileWidget from "@/components/common/TurnstileWidget";
@@ -16,7 +16,6 @@ import { PATHS } from "@/routes/paths";
 import { useAuthStore } from "@/store/authStore";
 import { useToastStore } from '@/store/toastStore';
 import { getFriendlyLoginMessage, useLoginMutation } from "@/features/auth/hooks/useLoginMutation";
-import { env } from "@/config/env";
 
 function LoginForm() {
   const { error, clearError } = useAuth();
@@ -57,12 +56,6 @@ function LoginForm() {
   const [formErrors, setFormErrors] = useState({});
   const turnstileRef = useRef(null);
 
-  useEffect(() => {
-    if (env.IS_DEV) {
-      console.log("Captcha Token:", captchaToken);
-    }
-  }, [captchaToken]);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -90,14 +83,6 @@ function LoginForm() {
       return;
     }
     if (isSubmitBlocked) return;
-
-    if (env.IS_DEV) {
-      console.log({
-        email: formData.email,
-        password: formData.password,
-        captchaToken,
-      });
-    }
 
     try {
       await loginMutation.mutateAsync({
