@@ -14,6 +14,7 @@ import { useSEO } from '@/hooks/useSEO';
 import { ProductCardSkeleton } from '@/components/skeleton';
 import { prefetchProductDetailPage } from '@/utils/prefetch';
 import { useProductSearchParams } from '../hooks/useProductSearchParams';
+import { sortProductsByTaxonomy } from '../utils/sortProductsByTaxonomy';
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -38,7 +39,14 @@ const ProductsPage = () => {
         : allProductsResult;
 
   const { data, isLoading: loading, isError, error: queryError } = activeResult;
-  const products = isSearchMode ? (data?.content ?? []) : (data ?? []);
+  const rawProducts = isSearchMode ? (data?.content ?? []) : (data ?? []);
+  // On the unfiltered "All" view, group products into the same
+  // category/subcategory order as the Navbar mega menu instead of whatever
+  // order the backend returns them in.
+  const products = useMemo(
+    () => (!isSearchMode && activeCat === 'All' ? sortProductsByTaxonomy(rawProducts) : rawProducts),
+    [rawProducts, isSearchMode, activeCat]
+  );
   const error = isError ? (queryError?.message ?? 'Failed to load products') : null;
   const totalPages = isSearchMode ? (data?.totalPages ?? 0) : 0;
   const hasNext = isSearchMode ? Boolean(data?.hasNext) : false;
