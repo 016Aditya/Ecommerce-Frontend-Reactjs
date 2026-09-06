@@ -78,3 +78,65 @@ export const CATEGORY_GROUPS = [
     ],
   },
 ];
+
+// Full taxonomy for the Navbar "All Categories" mega menu — one column per
+// top-level category, every subcategory listed (not just 4 curated highlights
+// like CATEGORY_GROUPS above, which drives the homepage hero tiles and can't
+// grow a 5th tile without a matching hero image).
+export const MEGA_MENU_GROUPS = [
+  {
+    title: 'Electronics',
+    link: productPath('Electronics'),
+    items: [
+      { label: 'Mobile',      link: productPath('Electronics', 'Mobile') },
+      { label: 'Laptop',      link: productPath('Electronics', 'Laptop') },
+      { label: 'TV',          link: productPath('Electronics', 'TV') },
+      { label: 'Tablet',      link: productPath('Electronics', 'Tablet') },
+      { label: 'Camera',      link: productPath('Electronics', 'Camera') },
+      { label: 'Headphones',  link: productPath('Electronics', 'Headphones') },
+      { label: 'Gadgets',     link: productPath('Electronics', 'Gadgets') },
+    ],
+  },
+  {
+    title: 'Clothing',
+    link: productPath('Clothing'),
+    items: [
+      { label: 'Shirt',  link: productPath('Clothing', 'Shirt') },
+      { label: 'Jeans',  link: productPath('Clothing', 'Jeans') },
+      { label: 'Dress',  link: productPath('Clothing', 'Dress') },
+      { label: 'Shoes',  link: productPath('Clothing', 'Shoes') },
+      { label: 'Jacket', link: productPath('Clothing', 'Jacket') },
+      { label: 'Kurta',  link: productPath('Clothing', 'Kurta') },
+    ],
+  },
+  {
+    title: 'Books',
+    link: productPath('Books'),
+    items: [
+      { label: 'Textbook',   link: productPath('Books', 'Textbook') },
+      { label: 'Novel',      link: productPath('Books', 'Novel') },
+      { label: 'Stationery', link: productPath('Books', 'Stationery') },
+      { label: 'Comics',     link: productPath('Books', 'Comics') },
+    ],
+  },
+  {
+    title: 'Home',
+    link: productPath('Home'),
+    items: [
+      { label: 'Furniture',  link: productPath('Home', 'Furniture') },
+      { label: 'Appliances', link: productPath('Home', 'Appliances') },
+      { label: 'Decor',      link: productPath('Home', 'Decor') },
+      { label: 'Kitchen',    link: productPath('Home', 'Kitchen') },
+    ],
+  },
+  {
+    title: 'Sports',
+    link: productPath('Sports'),
+    items: [
+      { label: 'Cricket',  link: productPath('Sports', 'Cricket') },
+      { label: 'Football', link: productPath('Sports', 'Football') },
+      { label: 'Gym',      link: productPath('Sports', 'Gym') },
+      { label: 'Yoga',     link: productPath('Sports', 'Yoga') },
+    ],
+  },
+];

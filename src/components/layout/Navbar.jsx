@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import PATHS from "@/routes/paths";
-import { CATEGORY_GROUPS } from "@/constants/categoryTaxonomy";
+import { MEGA_MENU_GROUPS } from "@/constants/categoryTaxonomy";
 import { useCartQuery, useGuestCartCount } from "@/features/cart/hooks/useCart";
 import { useWishlistQuery } from "@/features/wishlist/hooks/useWishlist";
 import { getGuestWishlist } from "@/services/guestWishlistService";
@@ -590,8 +590,8 @@ function Navbar() {
             </Link>
             {categoryMenuOpen === "all" && (
               <div className="grid"
-                style={{ position:"fixed", left: categoryMenuPos.left, top: categoryMenuPos.top, gridTemplateColumns:"repeat(4, 180px)", gap:"0", backgroundColor:"var(--modal-bg,#fff)", border:"1px solid var(--border-color,#ddd)", borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,0,0.18)", zIndex:9999 }}>
-                {CATEGORY_GROUPS.map((group, i) => (
+                style={{ position:"fixed", left: categoryMenuPos.left, top: categoryMenuPos.top, gridTemplateColumns:"repeat(5, 180px)", gap:"0", backgroundColor:"var(--modal-bg,#fff)", border:"1px solid var(--border-color,#ddd)", borderRadius:"4px", boxShadow:"0 4px 16px rgba(0,0,0,0.18)", zIndex:9999 }}>
+                {MEGA_MENU_GROUPS.map((group, i) => (
                   <div key={group.title} style={{ padding:"14px 16px", borderLeft: i > 0 ? "1px solid var(--border-color,#eee)" : "none" }}>
                     <Link to={group.link}
                       style={{ display:"block", marginBottom:"8px", fontSize:"13px", fontWeight:800, textTransform:"uppercase", letterSpacing:"0.02em", color:"var(--text-primary)", textDecoration:"none" }}
